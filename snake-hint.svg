@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 260" role="img" aria-labelledby="title desc">
+  <title id="title">뱀 무늬 일부 힌트</title>
+  <desc id="desc">초록색 뱀 몸통의 비늘 무늬를 가까이 본 힌트 이미지</desc>
+  <rect width="520" height="260" fill="#d8f7b9"/>
+  <path d="M-20 178 C80 84 166 82 268 154 C352 214 424 178 548 82" fill="none" stroke="#1c9a64" stroke-width="92" stroke-linecap="round"/>
+  <path d="M-20 178 C80 84 166 82 268 154 C352 214 424 178 548 82" fill="none" stroke="#72d055" stroke-width="58" stroke-linecap="round"/>
+  <g fill="#13754f" opacity="0.9">
+    <ellipse cx="88" cy="136" rx="22" ry="12" transform="rotate(-28 88 136)"/>
+    <ellipse cx="144" cy="116" rx="22" ry="12" transform="rotate(-12 144 116)"/>
+    <ellipse cx="205" cy="130" rx="22" ry="12" transform="rotate(16 205 130)"/>
+    <ellipse cx="262" cy="160" rx="22" ry="12" transform="rotate(28 262 160)"/>
+    <ellipse cx="325" cy="184" rx="22" ry="12" transform="rotate(8 325 184)"/>
+    <ellipse cx="386" cy="172" rx="22" ry="12" transform="rotate(-20 386 172)"/>
+    <ellipse cx="446" cy="132" rx="22" ry="12" transform="rotate(-30 446 132)"/>
+  </g>
+  <g fill="#fff7cf" opacity="0.92">
+    <ellipse cx="118" cy="112" rx="16" ry="8" transform="rotate(-20 118 112)"/>
+    <ellipse cx="236" cy="142" rx="16" ry="8" transform="rotate(22 236 142)"/>
+    <ellipse cx="356" cy="168" rx="16" ry="8" transform="rotate(-6 356 168)"/>
+    <ellipse cx="478" cy="108" rx="16" ry="8" transform="rotate(-26 478 108)"/>
+  </g>
+</svg>

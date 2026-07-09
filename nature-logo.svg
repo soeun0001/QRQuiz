@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 220" role="img" aria-labelledby="title desc">
+  <title id="title">충주자연생태체험관 로고 영역</title>
+  <desc id="desc">산, 물, 잎, 햇빛을 담은 밝은 생태 체험관 로고 이미지</desc>
+  <rect width="420" height="220" rx="42" fill="#e9ffe8"/>
+  <circle cx="328" cy="54" r="34" fill="#ffd45a"/>
+  <path d="M40 154 C92 78 146 76 204 154 Z" fill="#79cf5b"/>
+  <path d="M138 154 C206 52 282 54 374 154 Z" fill="#20a66a"/>
+  <path d="M26 166 C88 140 138 196 204 166 C260 140 326 192 394 164 L394 194 L26 194 Z" fill="#58c7d5"/>
+  <path d="M112 86 C128 54 158 44 186 62 C156 74 140 96 138 132 C122 122 108 106 112 86 Z" fill="#13754f"/>
+  <circle cx="146" cy="92" r="6" fill="#fff"/>
+  <path d="M210 76 C238 50 274 58 292 88 C254 88 230 108 220 142 C205 120 194 92 210 76 Z" fill="#ff7b64"/>
+  <circle cx="244" cy="91" r="6" fill="#fff"/>
+  <text x="210" y="42" text-anchor="middle" fill="#20312b" font-family="Arial, sans-serif" font-size="20" font-weight="800">충주자연생태체험관</text>
+</svg>

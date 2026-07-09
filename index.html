@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>퀴즈를 풀어라</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-screen="home">
+    <main class="app-shell">
+      <section class="top-panel" aria-label="미션 정보">
+        <div class="brand-lockup">
+          <div class="logo-mark" aria-hidden="true"><span>생태</span></div>
+          <div>
+            <p class="eyebrow">Quiz Mission</p>
+            <h1 id="mission-title">퀴즈를 풀어라</h1>
+          </div>
+        </div>
+        <button class="icon-button" id="reset-button" type="button" aria-label="진행 초기화" title="진행 초기화">↻</button>
+      </section>
+
+      <section class="progress-panel" aria-label="진행률">
+        <div class="progress-copy">
+          <strong id="progress-label">0 / 0</strong>
+          <span id="score-label">0점</span>
+        </div>
+        <div class="progress-track"><span id="progress-bar"></span></div>
+      </section>
+
+      <section class="screen home-screen is-active" id="home-screen">
+        <div class="home-art-frame">
+          <img src="assets/quiz-season3-home.png" alt="퀴즈를 풀어라 시즌 3 시작 화면" />
+          <button class="art-start-button" id="start-button" type="button">시작하기</button>
+        </div>
+        <button class="visually-hidden" id="resume-button" type="button">이어하기</button>
+      </section>
+
+      <section class="screen scanner-screen" id="scanner-screen">
+        <h2>QR 코드를 비춰주세요</h2>
+        <p class="guide-text">문제 QR을 인식하면 자동으로 해당 문제 페이지로 이동합니다.</p>
+        <div class="scanner-view">
+          <video id="scanner-video" playsinline muted></video>
+          <div class="scan-frame" aria-hidden="true"></div>
+        </div>
+        <p class="scanner-status" id="scanner-status">카메라를 준비하고 있습니다.</p>
+        <button class="secondary-button large-button" id="stop-scanner-button" type="button">돌아가기</button>
+      </section>
+
+      <section class="screen guard-screen" id="guard-screen">
+        <div class="guard-card">
+          <div class="guard-icon" id="guard-icon">🚫</div>
+          <h2 id="guard-title">아직 이 QR은 사용할 수 없습니다.</h2>
+          <p id="guard-message">이전 미션을 먼저 완료해주세요.</p>
+          <div class="current-place" id="guard-current-wrap">
+            <span>현재 진행 중인 장소 :</span>
+            <strong id="guard-current-place"></strong>
+          </div>
+          <p id="guard-extra">다음으로 이동하여 QR을 스캔해 주세요.</p>
+          <button class="primary-button large-button" id="guard-confirm-button" type="button">확인</button>
+        </div>
+      </section>
+
+      <section class="screen" id="quiz-screen">
+        <div class="quiz-card">
+          <div class="question-meta">
+            <p class="question-type" id="question-type"></p>
+            <span id="question-points">0점</span>
+          </div>
+          <h2 id="question-title"></h2>
+          <p class="question-text" id="question-text"></p>
+          <form id="answer-form" class="answer-form"></form>
+          <button class="primary-button large-button" id="check-button" type="button">정답 확인</button>
+        </div>
+      </section>
+
+      <section class="screen" id="result-screen">
+        <div class="result-badge" id="result-badge">정답입니다!</div>
+        <h2 id="result-title"></h2>
+        <p class="explanation" id="explanation"></p>
+        <div class="hint-card" id="hint-card">
+          <div class="star-line">★★★★★</div>
+          <span>다음 장소 힌트</span>
+          <div class="star-line">★★★★★</div>
+          <strong id="next-hint"></strong>
+          <figure class="image-hint" id="image-hint">
+            <img id="hint-image" alt="다음 장소 힌트 이미지" />
+          </figure>
+        </div>
+        <button class="primary-button large-button" id="next-button" type="button">다음 QR 찾기</button>
+      </section>
+
+      <section class="screen" id="survey-screen">
+        <h2>마지막 설문조사</h2>
+        <p class="guide-text">오늘 미션에 대한 생각을 알려주세요.</p>
+        <form id="survey-form" class="survey-form"></form>
+      </section>
+
+      <section class="screen complete-screen" id="complete-screen">
+        <div class="confetti" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <div class="complete-medal">완료</div>
+        <h2>축하합니다!</h2>
+        <div class="final-correct" id="final-correct">정답: 0 / 6</div>
+        <p id="final-message"></p>
+        <div class="notice-card complete-notice">
+          <strong>안내사항</strong>
+          <span>상품 추첨에는 꽝이 포함되어 있습니다.</span>
+          <span>6문제 중 3문제 이상 정답 시 추첨 기회가 주어집니다.</span>
+          <span>'퀴즈를 풀어라'는 점심시간(12:00~13:00)에는 운영하지 않습니다.</span>
+        </div>
+        <dl class="summary-grid">
+          <div>
+            <dt>총점</dt>
+            <dd id="final-score">0점</dd>
+          </div>
+          <div>
+            <dt>완료 문제</dt>
+            <dd id="final-progress">0개</dd>
+          </div>
+        </dl>
+        <button class="secondary-button large-button" id="restart-button" type="button">다시 시작</button>
+      </section>
+    </main>
+
+    <template id="choice-template">
+      <label class="choice">
+        <input type="radio" name="answer" />
+        <span></span>
+      </label>
+    </template>
+
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

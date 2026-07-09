@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>퀴즈를 풀어라 관리자</title>
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <main class="admin-shell">
+      <section class="login-panel" id="login-panel">
+        <p class="eyebrow">Admin</p>
+        <h1>퀴즈를 풀어라 관리자</h1>
+        <p>문제, 힌트, QR, 설문 문항을 관리합니다.</p>
+        <form id="login-form" class="stack">
+          <label>
+            관리자 비밀번호
+            <input id="password-input" type="password" autocomplete="current-password" placeholder="비밀번호 입력" required />
+          </label>
+          <button class="primary-button" type="submit">관리자 로그인</button>
+          <p class="error-text" id="login-error" role="alert"></p>
+        </form>
+      </section>
+
+      <section class="admin-app is-hidden" id="admin-app">
+        <header class="admin-header">
+          <div>
+            <p class="eyebrow">Quiz Manager</p>
+            <h1>퀴즈를 풀어라</h1>
+          </div>
+          <button class="secondary-button small" id="logout-button" type="button">로그아웃</button>
+        </header>
+
+        <nav class="tabs" aria-label="관리 메뉴">
+          <button class="tab-button is-active" type="button" data-tab="questions">문제 관리</button>
+          <button class="tab-button" type="button" data-tab="survey">설문 관리</button>
+          <button class="tab-button" type="button" data-tab="qr">QR 관리</button>
+          <button class="tab-button" type="button" data-tab="results">설문 결과</button>
+        </nav>
+
+        <section class="tab-panel is-active" id="tab-questions">
+          <div class="card stack">
+            <h2>기본 정보</h2>
+            <label>프로젝트 이름 <input id="mission-title-input" type="text" /></label>
+            <label>시작 안내문 <textarea id="mission-description-input" rows="3"></textarea></label>
+            <label>마지막 힌트 <textarea id="mission-final-hint-input" rows="3"></textarea></label>
+            <div class="button-row">
+              <button class="primary-button" id="save-draft-button" type="button">임시 저장</button>
+              <button class="secondary-button" id="download-json-button" type="button">questions.json 다운로드</button>
+            </div>
+          </div>
+
+          <div class="split-layout">
+            <section class="card stack">
+              <div class="section-title">
+                <h2>문제 목록</h2>
+                <button class="primary-button small" id="add-question-button" type="button">문제 추가</button>
+              </div>
+              <div class="item-list" id="question-list"></div>
+            </section>
+
+            <section class="card stack">
+              <h2>문제 편집</h2>
+              <label>문제 ID <input id="question-id" type="text" placeholder="예: snake" /></label>
+              <label>문제 유형
+                <select id="question-type">
+                  <option value="multiple">객관식</option>
+                  <option value="ox">OX</option>
+                  <option value="short">주관식</option>
+                </select>
+              </label>
+              <label>제목 <input id="question-title" type="text" /></label>
+              <label>문제 <textarea id="question-prompt" rows="4"></textarea></label>
+              <label>점수 <input id="question-points" type="number" min="0" step="1" /></label>
+              <label>객관식 보기 <textarea id="question-choices" rows="4" placeholder="한 줄에 보기 하나씩 입력"></textarea></label>
+              <label>정답 <textarea id="question-answer" rows="3" placeholder="주관식 복수 정답은 한 줄에 하나씩 입력"></textarea></label>
+              <label>정답 해설 <textarea id="question-explanation" rows="4"></textarea></label>
+              <label>다음 장소 힌트 <textarea id="question-next-hint" rows="3"></textarea></label>
+              <label>힌트 이미지 경로 <input id="question-image-src" type="text" placeholder="assets/hint.png" /></label>
+              <label>힌트 이미지 설명 <input id="question-image-alt" type="text" /></label>
+              <div class="button-row">
+                <button class="primary-button" id="save-question-button" type="button">문제 저장</button>
+                <button class="danger-button" id="delete-question-button" type="button">문제 삭제</button>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="tab-survey">
+          <div class="card stack">
+            <div class="section-title">
+              <h2>설문 문항</h2>
+              <button class="primary-button small" id="add-survey-button" type="button">문항 추가</button>
+            </div>
+            <div class="item-list" id="survey-list"></div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="tab-qr">
+          <div class="card stack">
+            <h2>QR 관리</h2>
+            <label>배포 주소 <input id="base-url-input" type="text" placeholder="https://사용자명.github.io/저장소명/" /></label>
+            <p class="help-text">비워두면 상대경로(index.html?q=문제ID)로 만들고, GitHub Pages 주소를 입력하면 그 주소 기준으로 QR 링크를 만듭니다.</p>
+            <div class="item-list qr-list" id="qr-list"></div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="tab-results">
+          <div class="card stack">
+            <h2>설문 결과</h2>
+            <p class="help-text">이 브라우저에 저장된 설문 응답을 CSV로 다운로드합니다.</p>
+            <div class="button-row">
+              <button class="primary-button" id="download-csv-button" type="button">CSV 다운로드</button>
+              <button class="danger-button" id="clear-results-button" type="button">결과 초기화</button>
+            </div>
+            <div class="result-count" id="result-count">0건</div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
