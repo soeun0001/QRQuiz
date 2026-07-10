@@ -7,6 +7,7 @@ const MISSION_PLACES = ["1층 로비", "2층 나나방", "2층 동물원", "2층
 
 const screens = {
   home: document.querySelector("#home-screen"),
+  notice: document.querySelector("#notice-screen"),
   scanner: document.querySelector("#scanner-screen"),
   guard: document.querySelector("#guard-screen"),
   quiz: document.querySelector("#quiz-screen"),
@@ -58,7 +59,9 @@ async function loadMission() {
 }
 
 function bindEvents() {
-  $("#start-button").addEventListener("click", startScanner);
+  $("#start-button").addEventListener("click", showNotice);
+  $("#notice-next-button").addEventListener("click", startScanner);
+  $("#notice-back-button").addEventListener("click", () => showScreen("home"));
   $("#resume-button").addEventListener("click", resumeMission);
   $("#check-button").addEventListener("click", checkAnswer);
   $("#next-button").addEventListener("click", goNext);
@@ -90,6 +93,11 @@ function resumeMission() {
 
   renderComplete();
   showScreen(state.survey ? "complete" : "survey");
+}
+
+function showNotice() {
+  stopScanner();
+  showScreen("notice");
 }
 
 function openQuestionWithOrderCheck(questionId, returnScreen = "home", updateUrl = true) {
@@ -126,6 +134,7 @@ function renderQuestion(question) {
   $("#question-title").textContent = question.title;
   $("#question-text").textContent = question.prompt;
   $("#question-points").textContent = `${question.points || 0}점`;
+  renderQuestionMedia(question);
 
   const form = $("#answer-form");
   form.innerHTML = "";
@@ -150,6 +159,40 @@ function renderQuestion(question) {
     node.querySelector("span").textContent = choice;
     form.append(node);
   });
+}
+
+function renderQuestionMedia(question) {
+  const container = $("#question-media");
+  const media = question.media || {};
+  container.innerHTML = "";
+
+  if (media.image?.src) {
+    const image = document.createElement("img");
+    image.src = media.image.src;
+    image.alt = media.image.alt || "문제 사진";
+    image.loading = "lazy";
+    container.append(image);
+  }
+
+  if (media.video?.src) {
+    const video = document.createElement("video");
+    video.src = media.video.src;
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = "metadata";
+    video.setAttribute("controlsList", "nodownload");
+    container.append(video);
+  }
+
+  if (media.audio?.src) {
+    const audio = document.createElement("audio");
+    audio.src = media.audio.src;
+    audio.controls = true;
+    audio.preload = "metadata";
+    container.append(audio);
+  }
+
+  container.classList.toggle("is-visible", Boolean(container.children.length));
 }
 
 function checkAnswer() {

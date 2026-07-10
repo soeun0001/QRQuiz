@@ -245,6 +245,20 @@ textarea {
   align-items: end;
 }
 
+.media-admin-box {
+  display: grid;
+  gap: 10px;
+  border: 2px dashed var(--line);
+  border-radius: 20px;
+  background: #fbfff8;
+  padding: 14px;
+}
+
+.media-admin-box h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
 .qr-item {
   display: grid;
   grid-template-columns: 1fr auto;

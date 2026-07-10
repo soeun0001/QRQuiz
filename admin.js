@@ -40,6 +40,9 @@ function bindAdminEvents() {
   $("#download-csv-button").addEventListener("click", downloadSurveyCsv);
   $("#clear-results-button").addEventListener("click", clearSurveyResults);
   $("#question-type").addEventListener("change", updateChoiceAvailability);
+  $("#question-media-image-file").addEventListener("change", () => readMediaFile("question-media-image-file", "question-media-image-src"));
+  $("#question-media-video-file").addEventListener("change", () => readMediaFile("question-media-video-file", "question-media-video-src"));
+  $("#question-media-audio-file").addEventListener("change", () => readMediaFile("question-media-audio-file", "question-media-audio-src"));
 }
 
 async function handleLogin(event) {
@@ -143,6 +146,12 @@ function renderQuestionEditor() {
   $("#question-answer").value = Array.isArray(question.answer) ? question.answer.join("\n") : question.answer || "";
   $("#question-explanation").value = question.explanation || "";
   $("#question-next-hint").value = question.nextHint || "";
+  $("#question-media-image-src").value = question.media?.image?.src || "";
+  $("#question-media-video-src").value = question.media?.video?.src || "";
+  $("#question-media-audio-src").value = question.media?.audio?.src || "";
+  $("#question-media-image-file").value = "";
+  $("#question-media-video-file").value = "";
+  $("#question-media-audio-file").value = "";
   $("#question-image-src").value = question.imageHint?.src || "";
   $("#question-image-alt").value = question.imageHint?.alt || "";
   updateChoiceAvailability();
@@ -151,6 +160,20 @@ function renderQuestionEditor() {
 function updateChoiceAvailability() {
   const type = $("#question-type").value;
   $("#question-choices").disabled = type !== "multiple";
+}
+
+function readMediaFile(fileInputId, targetInputId) {
+  const fileInput = $(`#${fileInputId}`);
+  const targetInput = $(`#${targetInputId}`);
+  const file = fileInput.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    targetInput.value = reader.result;
+    saveQuestion();
+  });
+  reader.readAsDataURL(file);
 }
 
 function addQuestion() {
@@ -193,6 +216,21 @@ function saveQuestion() {
     question.choices = parseLines($("#question-choices").value);
   } else {
     delete question.choices;
+  }
+
+  const media = {};
+  const mediaImageSrc = $("#question-media-image-src").value.trim();
+  const mediaVideoSrc = $("#question-media-video-src").value.trim();
+  const mediaAudioSrc = $("#question-media-audio-src").value.trim();
+
+  if (mediaImageSrc) media.image = { src: mediaImageSrc, alt: `${question.title || "문제"} 사진` };
+  if (mediaVideoSrc) media.video = { src: mediaVideoSrc };
+  if (mediaAudioSrc) media.audio = { src: mediaAudioSrc };
+
+  if (Object.keys(media).length) {
+    question.media = media;
+  } else {
+    delete question.media;
   }
 
   const imageSrc = $("#question-image-src").value.trim();

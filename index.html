@@ -29,10 +29,20 @@
 
       <section class="screen home-screen is-active" id="home-screen">
         <div class="home-art-frame">
-         <img src="./quiz-season3-home.png" alt="퀴즈를 풀어라 시즌 3 시작 화면" />
+          <img src="./quiz-season3-home.png" alt="퀴즈를 풀어라 시즌 3 시작 화면" />
           <button class="art-start-button" id="start-button" type="button">시작하기</button>
         </div>
         <button class="visually-hidden" id="resume-button" type="button">이어하기</button>
+      </section>
+
+      <section class="screen notice-screen" id="notice-screen">
+        <div class="notice-art-frame">
+          <img src="./notice-screen.png" alt="퀴즈 안내사항" />
+        </div>
+        <div class="notice-actions">
+          <button class="notice-back-button" id="notice-back-button" type="button">뒤로가기</button>
+          <button class="notice-next-button" id="notice-next-button" type="button">넘어가기</button>
+        </div>
       </section>
 
       <section class="screen scanner-screen" id="scanner-screen">
@@ -68,6 +78,7 @@
           </div>
           <h2 id="question-title"></h2>
           <p class="question-text" id="question-text"></p>
+          <div class="question-media" id="question-media"></div>
           <form id="answer-form" class="answer-form"></form>
           <button class="primary-button large-button" id="check-button" type="button">정답 확인</button>
         </div>
