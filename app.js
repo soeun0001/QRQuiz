@@ -3,7 +3,6 @@ const ADMIN_DRAFT_KEY = "quiz-mission-admin-draft-v1";
 const SURVEY_RESULTS_KEY = "quiz-mission-survey-results-v1";
 const TOTAL_QUESTIONS = 6;
 const PRIZE_THRESHOLD = 3;
-const MISSION_PLACES = ["1층 로비", "2층 나나방", "2층 동물원", "2층 전시실", "지하 놀이터", "산책길"];
 
 const screens = {
   home: document.querySelector("#home-screen"),
@@ -418,12 +417,13 @@ function showOrderGuard(validation, returnScreen) {
   returnScreenAfterGuard = returnScreen;
 
   const isCompleted = validation.status === "completed";
+  const nextPlace = placeName(validation.currentIndex);
   $("#guard-icon").textContent = isCompleted ? "✅" : "🚫";
   $("#guard-title").textContent = isCompleted ? "이미 완료한 미션입니다." : "아직 이 QR은 사용할 수 없습니다.";
-  $("#guard-message").textContent = isCompleted ? "다음 장소로 이동해주세요." : "이전 미션을 먼저 완료해주세요.";
-  $("#guard-current-wrap").style.display = isCompleted ? "none" : "grid";
-  $("#guard-current-place").textContent = placeName(validation.currentIndex);
-  $("#guard-extra").textContent = isCompleted ? "" : "다음으로 이동하여 QR을 스캔해 주세요.";
+  $("#guard-message").textContent = isCompleted ? "이미 완료한 QR입니다. 다음 장소로 이동해주세요." : "이전 미션을 먼저 완료해주세요.";
+  $("#guard-current-wrap").style.display = "grid";
+  $("#guard-current-place").textContent = nextPlace;
+  $("#guard-extra").textContent = isCompleted ? `${nextPlace}로 이동하여 QR을 스캔해 주세요.` : "다음으로 이동하여 QR을 스캔해 주세요.";
   showScreen("guard");
 }
 
@@ -438,7 +438,7 @@ function returnFromGuard() {
 }
 
 function placeName(index) {
-  return MISSION_PLACES[index] || `미션 ${index + 1}`;
+  return mission.questions[index]?.location || `미션 ${index + 1}`;
 }
 
 function renderSurvey() {
