@@ -2,6 +2,7 @@ const ADMIN_PASSWORD = "1234";
 const ADMIN_AUTH_KEY = "quiz-mission-admin-auth-v1";
 const ADMIN_DRAFT_KEY = "quiz-mission-admin-draft-v1";
 const SURVEY_RESULTS_KEY = "quiz-mission-survey-results-v1";
+const BASE_URL_KEY = "quiz-mission-base-url-v1";
 
 let mission = {
   title: "퀴즈를 풀어라",
@@ -36,10 +37,31 @@ function bindAdminEvents() {
   $("#save-question-button").addEventListener("click", saveQuestion);
   $("#delete-question-button").addEventListener("click", deleteQuestion);
   $("#add-survey-button").addEventListener("click", addSurveyQuestion);
-  $("#base-url-input").addEventListener("input", renderQrList);
+  $("#base-url-input").addEventListener("input", () => {
+    localStorage.setItem(
+      BASE_URL_KEY,
+      $("#base-url-input").value.trim()
+    );
+    renderQrList();
+  });
   $("#download-csv-button").addEventListener("click", downloadSurveyCsv);
   $("#clear-results-button").addEventListener("click", clearSurveyResults);
   $("#question-type").addEventListener("change", updateChoiceAvailability);
+  [
+    "question-title",
+    "question-prompt",
+    "question-choices",
+    "question-answer",
+    "question-explanation",
+    "question-next-hint",
+    "question-media-image-src",
+    "question-media-video-src",
+    "question-media-audio-src",
+    "question-image-src",
+    "question-image-alt",
+  ].forEach((id) => {
+    $(`#${id}`).addEventListener("input", applyQuestionEditorChanges);
+  });
   $("#question-media-image-file").addEventListener("change", () => readMediaFile("question-media-image-file", "question-media-image-src"));
   $("#question-media-video-file").addEventListener("change", () => readMediaFile("question-media-video-file", "question-media-video-src"));
   $("#question-media-audio-file").addEventListener("change", () => readMediaFile("question-media-audio-file", "question-media-audio-src"));
@@ -82,6 +104,10 @@ function renderAll() {
   $("#mission-title-input").value = mission.title || "";
   $("#mission-description-input").value = mission.description || "";
   $("#mission-final-hint-input").value = mission.finalHint || "";
+  const savedBaseUrl =
+    localStorage.getItem(BASE_URL_KEY) || defaultBaseUrl();
+
+  $("#base-url-input").value = savedBaseUrl;
   $("#base-url-input").placeholder = defaultBaseUrl();
   renderQuestionList();
   renderQuestionEditor();
@@ -139,6 +165,9 @@ function renderQuestionEditor() {
 
   $("#question-id").value = question.id || "";
   $("#question-type").value = question.type || "multiple";
+  $("#question-id").readOnly = true;
+  $("#question-type").disabled = true;
+  $("#question-points").disabled = true;
   $("#question-title").value = question.title || "";
   $("#question-prompt").value = question.prompt || "";
   $("#question-points").value = question.points ?? 10;
@@ -171,9 +200,52 @@ function readMediaFile(fileInputId, targetInputId) {
   const reader = new FileReader();
   reader.addEventListener("load", () => {
     targetInput.value = reader.result;
-    saveQuestion();
+    applyQuestionEditorChanges();
   });
   reader.readAsDataURL(file);
+}
+
+function applyQuestionEditorChanges() {
+  const question = mission.questions.find((item) => item.id === selectedQuestionId);
+  if (!question) return;
+
+  question.title = $("#question-title").value.trim();
+  question.prompt = $("#question-prompt").value.trim();
+  question.answer = parseLines($("#question-answer").value);
+  if (question.answer.length === 1) question.answer = question.answer[0];
+  question.explanation = $("#question-explanation").value.trim();
+  question.nextHint = $("#question-next-hint").value.trim();
+
+  if (question.type === "multiple") {
+    question.choices = parseLines($("#question-choices").value);
+  }
+
+  const media = {};
+  const mediaImageSrc = $("#question-media-image-src").value.trim();
+  const mediaVideoSrc = $("#question-media-video-src").value.trim();
+  const mediaAudioSrc = $("#question-media-audio-src").value.trim();
+  if (mediaImageSrc) media.image = { src: mediaImageSrc, alt: `${question.title || "문제"} 사진` };
+  if (mediaVideoSrc) media.video = { src: mediaVideoSrc };
+  if (mediaAudioSrc) media.audio = { src: mediaAudioSrc };
+  if (Object.keys(media).length) {
+    question.media = media;
+  } else {
+    delete question.media;
+  }
+
+  const imageSrc = $("#question-image-src").value.trim();
+  if (imageSrc) {
+    question.imageHint = {
+      src: imageSrc,
+      alt: $("#question-image-alt").value.trim(),
+      position: "center",
+    };
+  } else {
+    delete question.imageHint;
+  }
+
+  renderQuestionList();
+  renderQrList();
 }
 
 function addQuestion() {
@@ -196,55 +268,9 @@ function addQuestion() {
 }
 
 function saveQuestion() {
-  const oldId = selectedQuestionId;
-  const question = mission.questions.find((item) => item.id === oldId);
+  const question = mission.questions.find((item) => item.id === selectedQuestionId);
   if (!question) return;
-
-  const nextId = slugify($("#question-id").value.trim()) || uniqueId("question");
-  const type = $("#question-type").value;
-  question.id = nextId;
-  question.type = type;
-  question.title = $("#question-title").value.trim();
-  question.prompt = $("#question-prompt").value.trim();
-  question.points = Number($("#question-points").value || 0);
-  question.answer = parseLines($("#question-answer").value);
-  if (question.answer.length === 1) question.answer = question.answer[0];
-  question.explanation = $("#question-explanation").value.trim();
-  question.nextHint = $("#question-next-hint").value.trim();
-
-  if (type === "multiple") {
-    question.choices = parseLines($("#question-choices").value);
-  } else {
-    delete question.choices;
-  }
-
-  const media = {};
-  const mediaImageSrc = $("#question-media-image-src").value.trim();
-  const mediaVideoSrc = $("#question-media-video-src").value.trim();
-  const mediaAudioSrc = $("#question-media-audio-src").value.trim();
-
-  if (mediaImageSrc) media.image = { src: mediaImageSrc, alt: `${question.title || "문제"} 사진` };
-  if (mediaVideoSrc) media.video = { src: mediaVideoSrc };
-  if (mediaAudioSrc) media.audio = { src: mediaAudioSrc };
-
-  if (Object.keys(media).length) {
-    question.media = media;
-  } else {
-    delete question.media;
-  }
-
-  const imageSrc = $("#question-image-src").value.trim();
-  if (imageSrc) {
-    question.imageHint = {
-      src: imageSrc,
-      alt: $("#question-image-alt").value.trim(),
-      position: "center",
-    };
-  } else {
-    delete question.imageHint;
-  }
-
-  selectedQuestionId = nextId;
+  applyQuestionEditorChanges();
   renderQuestionList();
   renderQrList();
   saveDraft();
@@ -330,7 +356,8 @@ function renderQrList() {
   const list = $("#qr-list");
   if (!list) return;
   list.innerHTML = "";
-  const baseUrl = $("#base-url-input").value.trim();
+  const baseUrl =
+    $("#base-url-input").value.trim() || defaultBaseUrl();
 
   mission.questions.forEach((question) => {
     const url = buildQuestionUrl(baseUrl, question.id);
@@ -450,12 +477,11 @@ function parseLines(value) {
 }
 
 function defaultBaseUrl() {
-  return location.href.replace(/admin\.html.*$/, "");
+  return new URL("./", window.location.href).href;
 }
 
 function buildQuestionUrl(baseUrl, questionId) {
   const target = `index.html?q=${encodeURIComponent(questionId)}`;
-  if (!baseUrl) return target;
 
   try {
     const normalized = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
