@@ -571,22 +571,18 @@ p {
   display: none;
 }
 
-.hint-card span {
+.hint-title {
+  display: block;
   color: var(--leaf-dark);
   font-size: 1.05rem;
   font-weight: 1000;
+  text-align: center;
 }
 
 .hint-card strong {
   color: var(--ink);
   font-size: clamp(1.3rem, 6vw, 1.8rem);
   line-height: 1.35;
-}
-
-.star-line {
-  color: #f0b500;
-  font-size: 1.35rem;
-  letter-spacing: 0;
 }
 
 .image-hint {

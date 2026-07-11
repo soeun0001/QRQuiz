@@ -61,6 +61,7 @@ function bindAdminEvents() {
   [
     "question-title",
     "question-prompt",
+    "question-points",
     "question-choices",
     "question-answer",
     "question-explanation",
@@ -196,7 +197,7 @@ function renderQuestionEditor() {
   $("#question-type").value = question.type || "multiple";
   $("#question-id").readOnly = true;
   $("#question-type").disabled = false;
-  $("#question-points").disabled = true;
+  $("#question-points").disabled = false;
   $("#question-title").value = question.title || "";
   $("#question-prompt").value = question.prompt || "";
   $("#question-points").value = question.points ?? 10;
@@ -305,13 +306,15 @@ function getQuestionHintImage(question) {
   return question.imageHint || question.hintImage || null;
 }
 
-function applyQuestionEditorChanges() {
+function applyQuestionEditorChanges(options = {}) {
+  const shouldRender = options.render !== false;
   const question = mission.questions.find((item) => item.id === selectedQuestionId);
   if (!question) return;
 
   question.title = $("#question-title").value.trim();
   question.type = $("#question-type").value;
   question.prompt = $("#question-prompt").value.trim();
+  question.points = Math.max(0, Number($("#question-points").value) || 0);
   question.answer = parseLines($("#question-answer").value);
   if (question.answer.length === 1) question.answer = question.answer[0];
   question.explanation = $("#question-explanation").value.trim();
@@ -349,8 +352,10 @@ function applyQuestionEditorChanges() {
     delete question.hintImage;
   }
 
-  renderQuestionList();
-  renderQrList();
+  if (shouldRender) {
+    renderQuestionList();
+    renderQrList();
+  }
 }
 
 function addQuestion() {
@@ -532,8 +537,11 @@ async function copyQr(canvas, fallbackUrl) {
 }
 
 function saveDraft() {
+  applyQuestionEditorChanges({ render: false });
   syncMissionMeta();
   localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(mission));
+  renderQuestionList();
+  renderQrList();
   renderResultCount();
 }
 
@@ -541,6 +549,7 @@ function downloadJson() {
   saveDraft();
   normalizeMissionSettings();
   downloadText("questions.json", JSON.stringify(mission, null, 2), "application/json");
+  alert("questions.json 다운로드를 시작했습니다.");
 }
 
 function downloadSurveyCsv() {
@@ -574,8 +583,13 @@ function downloadText(filename, text, type) {
   const link = document.createElement("a");
   link.href = url;
   link.download = filename;
+  link.style.display = "none";
+  document.body.append(link);
   link.click();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    link.remove();
+  }, 1000);
 }
 
 function parseLines(value) {
