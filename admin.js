@@ -105,13 +105,21 @@ function logout() {
 
 async function loadMission() {
   const draft = localStorage.getItem(ADMIN_DRAFT_KEY);
-  if (draft) return JSON.parse(draft);
+  if (draft) {
+    const parsedDraft = sanitizeMissionMediaDataUrls(JSON.parse(draft));
+    try {
+      localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(createLocalStorageDraft(parsedDraft)));
+    } catch {
+      localStorage.removeItem(ADMIN_DRAFT_KEY);
+    }
+    return parsedDraft;
+  }
 
   const response = await fetch(`./questions.json?v=${Date.now()}`, {
     cache: "no-store",
   });
   if (!response.ok) return mission;
-  return response.json();
+  return sanitizeMissionMediaDataUrls(await response.json());
 }
 
 function renderAll() {
@@ -217,10 +225,19 @@ function createLocalStorageDraft(source) {
   };
 }
 
+function sanitizeMissionMediaDataUrls(source) {
+  return createLocalStorageDraft(source);
+}
+
 function stripDataUrlsFromQuestion(question) {
   const cleanQuestion = { ...question };
 
   if (isDataUrl(cleanQuestion.mediaUrl)) delete cleanQuestion.mediaUrl;
+  ["image", "video", "audio"].forEach((key) => {
+    if (isDataUrl(cleanQuestion[key]) || isDataUrl(cleanQuestion[key]?.src)) {
+      delete cleanQuestion[key];
+    }
+  });
   cleanQuestion.media = stripMediaDataUrls(cleanQuestion.media);
   if (!cleanQuestion.media) delete cleanQuestion.media;
 
@@ -430,6 +447,14 @@ function readQuestionFromEditor(originalQuestion, options = {}) {
 }
 
 function applyQuestionMediaFields(question) {
+  delete question.image;
+  delete question.video;
+  delete question.audio;
+  delete question.mediaUrl;
+  delete question.media;
+  delete question.imageHint;
+  delete question.hintImage;
+
   const media = {};
   const mediaImageSrc = readPathInput("question-media-image-src", "사진 경로");
   const mediaVideoSrc = readPathInput("question-media-video-src", "영상 경로");
@@ -450,10 +475,6 @@ function applyQuestionMediaFields(question) {
       alt: $("#question-image-alt").value.trim(),
       position: "center",
     };
-    delete question.hintImage;
-  } else {
-    delete question.imageHint;
-    delete question.hintImage;
   }
 }
 
