@@ -279,7 +279,15 @@ function goNext() {
     return;
   }
 
-  showScreen("survey");
+  if (isSurveyEnabled()) {
+    showScreen("survey");
+    return;
+  }
+
+  state.survey = null;
+  saveState();
+  renderComplete();
+  showScreen("complete");
 }
 
 async function startScanner() {
@@ -451,6 +459,10 @@ function renderSurvey() {
   button.type = "submit";
   button.textContent = "제출하고 완료하기";
   form.append(button);
+}
+
+function isSurveyEnabled() {
+  return mission.settings?.surveyEnabled !== false;
 }
 
 function createSurveyField(question) {

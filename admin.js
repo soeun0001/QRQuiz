@@ -8,6 +8,9 @@ let mission = {
   title: "퀴즈를 풀어라",
   description: "",
   finalHint: "",
+  settings: {
+    surveyEnabled: true,
+  },
   questions: [],
   surveyQuestions: [],
 };
@@ -37,6 +40,11 @@ function bindAdminEvents() {
   $("#save-question-button").addEventListener("click", saveQuestion);
   $("#delete-question-button").addEventListener("click", deleteQuestion);
   $("#add-survey-button").addEventListener("click", addSurveyQuestion);
+  $("#survey-enabled-input").addEventListener("change", () => {
+    mission.settings = mission.settings || {};
+    mission.settings.surveyEnabled = $("#survey-enabled-input").checked;
+    saveDraft();
+  });
   $("#base-url-input").addEventListener("input", () => {
     localStorage.setItem(
       BASE_URL_KEY,
@@ -46,7 +54,10 @@ function bindAdminEvents() {
   });
   $("#download-csv-button").addEventListener("click", downloadSurveyCsv);
   $("#clear-results-button").addEventListener("click", clearSurveyResults);
-  $("#question-type").addEventListener("change", updateChoiceAvailability);
+  $("#question-type").addEventListener("change", () => {
+    applyQuestionEditorChanges();
+    updateChoiceAvailability();
+  });
   [
     "question-title",
     "question-prompt",
@@ -104,6 +115,11 @@ function renderAll() {
   $("#mission-title-input").value = mission.title || "";
   $("#mission-description-input").value = mission.description || "";
   $("#mission-final-hint-input").value = mission.finalHint || "";
+  mission.settings = mission.settings || {};
+  if (typeof mission.settings.surveyEnabled !== "boolean") {
+    mission.settings.surveyEnabled = true;
+  }
+  $("#survey-enabled-input").checked = mission.settings.surveyEnabled;
   const savedBaseUrl =
     localStorage.getItem(BASE_URL_KEY) || defaultBaseUrl();
 
@@ -131,6 +147,8 @@ function syncMissionMeta() {
   mission.title = $("#mission-title-input").value.trim() || "퀴즈를 풀어라";
   mission.description = $("#mission-description-input").value.trim();
   mission.finalHint = $("#mission-final-hint-input").value.trim();
+  mission.settings = mission.settings || {};
+  mission.settings.surveyEnabled = $("#survey-enabled-input").checked;
 }
 
 function renderQuestionList() {
@@ -163,10 +181,11 @@ function renderQuestionEditor() {
 
   if (!question) return;
 
+  ensureQuestionTypeOptions();
   $("#question-id").value = question.id || "";
   $("#question-type").value = question.type || "multiple";
   $("#question-id").readOnly = true;
-  $("#question-type").disabled = true;
+  $("#question-type").disabled = false;
   $("#question-points").disabled = true;
   $("#question-title").value = question.title || "";
   $("#question-prompt").value = question.prompt || "";
@@ -191,6 +210,23 @@ function updateChoiceAvailability() {
   $("#question-choices").disabled = type !== "multiple";
 }
 
+function ensureQuestionTypeOptions() {
+  const typeSelect = $("#question-type");
+  const options = [
+    ["multiple", "객관식"],
+    ["ox", "OX"],
+    ["short", "주관식"],
+  ];
+
+  typeSelect.innerHTML = "";
+  options.forEach(([value, label]) => {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    typeSelect.append(option);
+  });
+}
+
 function readMediaFile(fileInputId, targetInputId) {
   const fileInput = $(`#${fileInputId}`);
   const targetInput = $(`#${targetInputId}`);
@@ -210,6 +246,7 @@ function applyQuestionEditorChanges() {
   if (!question) return;
 
   question.title = $("#question-title").value.trim();
+  question.type = $("#question-type").value;
   question.prompt = $("#question-prompt").value.trim();
   question.answer = parseLines($("#question-answer").value);
   if (question.answer.length === 1) question.answer = question.answer[0];
@@ -218,6 +255,8 @@ function applyQuestionEditorChanges() {
 
   if (question.type === "multiple") {
     question.choices = parseLines($("#question-choices").value);
+  } else {
+    delete question.choices;
   }
 
   const media = {};

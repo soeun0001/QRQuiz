@@ -44,10 +44,15 @@
             <label>프로젝트 이름 <input id="mission-title-input" type="text" /></label>
             <label>시작 안내문 <textarea id="mission-description-input" rows="3"></textarea></label>
             <label>마지막 힌트 <textarea id="mission-final-hint-input" rows="3"></textarea></label>
+            <label class="switch-row">
+              <span>설문조사 사용</span>
+              <input id="survey-enabled-input" type="checkbox" />
+            </label>
             <div class="button-row">
-              <button class="primary-button" id="save-draft-button" type="button">임시 저장</button>
+              <button class="primary-button" id="save-draft-button" type="button">변경사항 저장</button>
               <button class="secondary-button" id="download-json-button" type="button">questions.json 다운로드</button>
             </div>
+            <p class="help-text">수정한 문제를 실제 사이트에 반영하려면 questions.json을 다운로드한 후 GitHub 저장소의 기존 questions.json에 덮어씌워 주세요.</p>
           </div>
 
           <div class="split-layout">
@@ -61,7 +66,7 @@
 
             <section class="card stack">
               <h2>문제 편집</h2>
-              <label>문제 ID <input id="question-id" type="text" placeholder="예: snake" /></label>
+              <label>문제 ID <input id="question-id" type="text" placeholder="예: snake" readonly /></label>
               <label>문제 유형
                 <select id="question-type">
                   <option value="multiple">객관식</option>
@@ -108,8 +113,8 @@
         <section class="tab-panel" id="tab-qr">
           <div class="card stack">
             <h2>QR 관리</h2>
-            <label>배포 주소 <input id="base-url-input" type="text" placeholder="https://사용자명.github.io/저장소명/" /></label>
-            <p class="help-text">비워두면 상대경로(index.html?q=문제ID)로 만들고, GitHub Pages 주소를 입력하면 그 주소 기준으로 QR 링크를 만듭니다.</p>
+            <label>배포 주소 <input id="base-url-input" type="text" placeholder="https://사용자명.github.io/QRQuiz/" /></label>
+            <p class="help-text">주소는 자동으로 저장됩니다. 입력값이 없으면 현재 GitHub Pages 기준 주소를 사용해 QR 링크를 만듭니다.</p>
             <div class="item-list qr-list" id="qr-list"></div>
           </div>
         </section>
@@ -128,7 +133,7 @@
       </section>
     </main>
 
-     <script src="./qrcode.min.js?v=1"></script>
-     <script src="./admin.js?v=1"></script>>
+    <script src="./qrcode.min.js?v=1"></script>
+    <script src="./admin.js?v=1"></script>
   </body>
 </html>

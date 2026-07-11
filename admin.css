@@ -188,6 +188,23 @@ label {
   font-weight: 850;
 }
 
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  background: #fbfff8;
+  padding: 14px;
+}
+
+.switch-row input {
+  width: 56px;
+  height: 30px;
+  accent-color: var(--primary);
+}
+
 input,
 select,
 textarea {
@@ -197,6 +214,11 @@ textarea {
   background: white;
   padding: 12px 14px;
   color: var(--ink);
+}
+
+select:not(:disabled) {
+  cursor: pointer;
+  background-color: white;
 }
 
 textarea {
