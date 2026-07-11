@@ -3,6 +3,7 @@ const ADMIN_AUTH_KEY = "quiz-mission-admin-auth-v1";
 const ADMIN_DRAFT_KEY = "quiz-mission-admin-draft-v1";
 const SURVEY_RESULTS_KEY = "quiz-mission-survey-results-v1";
 const BASE_URL_KEY = "quiz-mission-base-url-v1";
+const HINT_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
 let mission = {
   title: "퀴즈를 풀어라",
@@ -75,6 +76,10 @@ function bindAdminEvents() {
   $("#question-media-image-file").addEventListener("change", () => readMediaFile("question-media-image-file", "question-media-image-src"));
   $("#question-media-video-file").addEventListener("change", () => readMediaFile("question-media-video-file", "question-media-video-src"));
   $("#question-media-audio-file").addEventListener("change", () => readMediaFile("question-media-audio-file", "question-media-audio-src"));
+  $("#question-image-file").addEventListener("change", readHintImageFile);
+  $("#question-image-src").addEventListener("input", updateHintPreview);
+  $("#question-image-alt").addEventListener("input", updateHintPreview);
+  $("#clear-hint-image-button").addEventListener("click", clearHintImage);
 }
 
 async function handleLogin(event) {
@@ -205,9 +210,12 @@ function renderQuestionEditor() {
   $("#question-media-image-file").value = "";
   $("#question-media-video-file").value = "";
   $("#question-media-audio-file").value = "";
-  $("#question-image-src").value = question.imageHint?.src || "";
-  $("#question-image-alt").value = question.imageHint?.alt || "";
+  $("#question-image-file").value = "";
+  const hintImage = getQuestionHintImage(question);
+  $("#question-image-src").value = hintImage?.src || "";
+  $("#question-image-alt").value = hintImage?.alt || "";
   updateChoiceAvailability();
+  updateHintPreview();
 }
 
 function updateChoiceAvailability() {
@@ -244,6 +252,57 @@ function readMediaFile(fileInputId, targetInputId) {
     applyQuestionEditorChanges();
   });
   reader.readAsDataURL(file);
+}
+
+function readHintImageFile() {
+  const fileInput = $("#question-image-file");
+  const file = fileInput.files?.[0];
+  if (!file) return;
+
+  if (!HINT_IMAGE_TYPES.includes(file.type)) {
+    alert("PNG, JPG/JPEG, WEBP, SVG 이미지만 업로드할 수 있습니다.");
+    fileInput.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.addEventListener("load", () => {
+    $("#question-image-src").value = reader.result;
+    if (!$("#question-image-alt").value.trim()) {
+      $("#question-image-alt").value = file.name.replace(/\.[^.]+$/, "");
+    }
+    updateHintPreview();
+    applyQuestionEditorChanges();
+  });
+  reader.readAsDataURL(file);
+}
+
+function updateHintPreview() {
+  const preview = $("#hint-preview");
+  const image = $("#hint-preview-image");
+  const src = $("#question-image-src").value.trim();
+
+  if (!src) {
+    image.removeAttribute("src");
+    preview.classList.remove("is-visible");
+    return;
+  }
+
+  image.src = src;
+  image.alt = $("#question-image-alt").value.trim() || "힌트 이미지 미리보기";
+  preview.classList.add("is-visible");
+}
+
+function clearHintImage() {
+  $("#question-image-file").value = "";
+  $("#question-image-src").value = "";
+  $("#question-image-alt").value = "";
+  updateHintPreview();
+  applyQuestionEditorChanges();
+}
+
+function getQuestionHintImage(question) {
+  return question.imageHint || question.hintImage || null;
 }
 
 function applyQuestionEditorChanges() {
@@ -284,8 +343,10 @@ function applyQuestionEditorChanges() {
       alt: $("#question-image-alt").value.trim(),
       position: "center",
     };
+    delete question.hintImage;
   } else {
     delete question.imageHint;
+    delete question.hintImage;
   }
 
   renderQuestionList();

@@ -247,6 +247,7 @@ function renderResult() {
   const hintCard = $("#hint-card");
   const imageHint = $("#image-hint");
   const hintImage = $("#hint-image");
+  const hintImageData = question.imageHint || question.hintImage || null;
 
   badge.textContent = isCorrect ? "정답입니다!" : "아쉽지만 정답이 아니에요!";
   badge.classList.toggle("is-wrong", !isCorrect);
@@ -256,10 +257,10 @@ function renderResult() {
   $("#next-hint").textContent = question.nextHint || mission.finalHint || "다음 장소로 이동하세요.";
   $("#next-button").textContent = nextButtonLabel();
 
-  if (question.imageHint?.src) {
-    hintImage.src = question.imageHint.src;
-    hintImage.alt = question.imageHint.alt || "다음 장소 힌트 이미지";
-    hintImage.style.objectPosition = question.imageHint.position || "center";
+  if (hintImageData?.src) {
+    hintImage.src = hintImageData.src;
+    hintImage.alt = hintImageData.alt || "다음 장소 힌트 이미지";
+    hintImage.style.objectPosition = hintImageData.position || "center";
     imageHint.classList.add("is-visible");
   } else {
     hintImage.removeAttribute("src");
