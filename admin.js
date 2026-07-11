@@ -9,7 +9,7 @@ let mission = {
   description: "",
   finalHint: "",
   settings: {
-    surveyEnabled: true,
+    surveyEnabled: false,
   },
   questions: [],
   surveyQuestions: [],
@@ -41,8 +41,7 @@ function bindAdminEvents() {
   $("#delete-question-button").addEventListener("click", deleteQuestion);
   $("#add-survey-button").addEventListener("click", addSurveyQuestion);
   $("#survey-enabled-input").addEventListener("change", () => {
-    mission.settings = mission.settings || {};
-    mission.settings.surveyEnabled = $("#survey-enabled-input").checked;
+    setSurveyEnabled($("#survey-enabled-input").checked);
     saveDraft();
   });
   $("#base-url-input").addEventListener("input", () => {
@@ -115,10 +114,7 @@ function renderAll() {
   $("#mission-title-input").value = mission.title || "";
   $("#mission-description-input").value = mission.description || "";
   $("#mission-final-hint-input").value = mission.finalHint || "";
-  mission.settings = mission.settings || {};
-  if (typeof mission.settings.surveyEnabled !== "boolean") {
-    mission.settings.surveyEnabled = true;
-  }
+  normalizeMissionSettings();
   $("#survey-enabled-input").checked = mission.settings.surveyEnabled;
   const savedBaseUrl =
     localStorage.getItem(BASE_URL_KEY) || defaultBaseUrl();
@@ -147,8 +143,17 @@ function syncMissionMeta() {
   mission.title = $("#mission-title-input").value.trim() || "퀴즈를 풀어라";
   mission.description = $("#mission-description-input").value.trim();
   mission.finalHint = $("#mission-final-hint-input").value.trim();
+  setSurveyEnabled($("#survey-enabled-input").checked);
+}
+
+function normalizeMissionSettings() {
   mission.settings = mission.settings || {};
-  mission.settings.surveyEnabled = $("#survey-enabled-input").checked;
+  mission.settings.surveyEnabled = mission.settings.surveyEnabled === true;
+}
+
+function setSurveyEnabled(value) {
+  mission.settings = mission.settings || {};
+  mission.settings.surveyEnabled = value === true;
 }
 
 function renderQuestionList() {
@@ -473,6 +478,7 @@ function saveDraft() {
 
 function downloadJson() {
   saveDraft();
+  normalizeMissionSettings();
   downloadText("questions.json", JSON.stringify(mission, null, 2), "application/json");
 }
 

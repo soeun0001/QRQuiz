@@ -1,5 +1,4 @@
 const STORAGE_KEY = "quiz-mission-player-state-v2";
-const ADMIN_DRAFT_KEY = "quiz-mission-admin-draft-v1";
 const SURVEY_RESULTS_KEY = "quiz-mission-survey-results-v1";
 const TOTAL_QUESTIONS = 6;
 const PRIZE_THRESHOLD = 3;
@@ -49,9 +48,6 @@ async function init() {
 }
 
 async function loadMission() {
-  const localDraft = localStorage.getItem(ADMIN_DRAFT_KEY);
-  if (localDraft) return JSON.parse(localDraft);
-
   const response = await fetch("questions.json", { cache: "no-store" });
   if (!response.ok) throw new Error("questions.json not found");
   return response.json();
@@ -90,7 +86,7 @@ function resumeMission() {
   }
 
   renderComplete();
-  showScreen(state.survey ? "complete" : "survey");
+  showScreen(isSurveyEnabled() && !state.survey ? "survey" : "complete");
 }
 
 function showNotice() {
@@ -217,6 +213,15 @@ function checkAnswer() {
 
   saveState();
   lastResult = { isCorrect, question: activeQuestion };
+
+  if (!getNextUncompletedQuestion() && !isSurveyEnabled()) {
+    history.replaceState(null, "", location.pathname);
+    renderComplete();
+    updateProgress();
+    showScreen("complete");
+    return;
+  }
+
   renderResult();
   updateProgress();
   showScreen("result");
@@ -243,29 +248,28 @@ function renderResult() {
   const imageHint = $("#image-hint");
   const hintImage = $("#hint-image");
 
-  badge.textContent = isCorrect ? "정답입니다!" : "다시 생각해보세요.";
+  badge.textContent = isCorrect ? "정답입니다!" : "아쉽지만 정답이 아니에요!";
   badge.classList.toggle("is-wrong", !isCorrect);
-  $("#result-title").textContent = isCorrect ? `${question.points || 0}점을 획득했어요` : "조금만 더 관찰해 볼까요?";
-  $("#explanation").textContent = isCorrect ? question.explanation : "문제를 다시 읽고 한 번 더 도전해 보세요.";
-  hintCard.classList.toggle("is-hidden", !isCorrect);
+  $("#result-title").textContent = isCorrect ? `${question.points || 0}점을 획득했어요` : "정답과 해설을 확인하고 다음 장소로 이동해 주세요.";
+  $("#explanation").textContent = question.explanation || "";
+  hintCard.classList.remove("is-hidden");
+  $("#next-hint").textContent = question.nextHint || mission.finalHint || "다음 장소로 이동하세요.";
+  $("#next-button").textContent = nextButtonLabel();
 
-  if (isCorrect) {
-    $("#next-hint").textContent = question.nextHint || mission.finalHint || "다음 장소로 이동하세요.";
-    $("#next-button").textContent = getNextUncompletedQuestion() ? "다음 QR 찾기" : "설문조사 하기";
-
-    if (question.imageHint?.src) {
-      hintImage.src = question.imageHint.src;
-      hintImage.alt = question.imageHint.alt || "다음 장소 힌트 이미지";
-      hintImage.style.objectPosition = question.imageHint.position || "center";
-      imageHint.classList.add("is-visible");
-    } else {
-      hintImage.removeAttribute("src");
-      imageHint.classList.remove("is-visible");
-    }
+  if (question.imageHint?.src) {
+    hintImage.src = question.imageHint.src;
+    hintImage.alt = question.imageHint.alt || "다음 장소 힌트 이미지";
+    hintImage.style.objectPosition = question.imageHint.position || "center";
+    imageHint.classList.add("is-visible");
   } else {
-    $("#next-button").textContent = getNextUncompletedQuestion() ? "다음 QR 찾기" : "설문조사 하기";
+    hintImage.removeAttribute("src");
     imageHint.classList.remove("is-visible");
   }
+}
+
+function nextButtonLabel() {
+  if (getNextUncompletedQuestion()) return "다음 QR 찾기";
+  return isSurveyEnabled() ? "설문조사 하기" : "결과 보기";
 }
 
 function goNext() {
@@ -461,7 +465,7 @@ function renderSurvey() {
 }
 
 function isSurveyEnabled() {
-  return mission.settings?.surveyEnabled !== false;
+  return mission.settings?.surveyEnabled === true;
 }
 
 function createSurveyField(question) {

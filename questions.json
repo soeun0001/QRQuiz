@@ -2,6 +2,9 @@
   "title": "퀴즈를 풀어라",
   "description": "충주자연생태체험관 곳곳의 QR코드를 찾아 문제를 풀고 다음 장소 힌트를 확인하세요.",
   "finalHint": "모든 미션을 완료했습니다. 설문조사를 마치고 안내 데스크로 돌아와 주세요.",
+  "settings": {
+    "surveyEnabled": false
+  },
   "questions": [
     {
       "id": "snake",
