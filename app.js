@@ -65,7 +65,6 @@ function bindEvents() {
   $("#check-button").addEventListener("click", checkAnswer);
   $("#next-button").addEventListener("click", goNext);
   $("#reset-button").addEventListener("click", resetMission);
-  $("#restart-button").addEventListener("click", resetMission);
   $("#stop-scanner-button").addEventListener("click", stopScannerAndGoHome);
   $("#guard-confirm-button").addEventListener("click", returnFromGuard);
   $("#survey-form").addEventListener("submit", submitSurvey);
@@ -516,14 +515,13 @@ function saveSurveyResult(answers) {
 
 function renderComplete() {
   const correctCount = Object.values(state.completed).filter((answer) => answer.isCorrect).length;
-  const completedCount = Object.keys(state.completed).length;
   const qualified = correctCount >= PRIZE_THRESHOLD;
 
+  $("#complete-title").textContent = qualified ? "축하합니다!" : "아쉽습니다";
   $("#final-correct").textContent = `정답: ${correctCount} / ${TOTAL_QUESTIONS}`;
   $("#final-score").textContent = `${state.score}점`;
-  $("#final-progress").textContent = `${completedCount}개`;
   $("#final-message").textContent = qualified
-    ? "축하합니다! 6문제 중 3문제 이상 정답을 맞히셨습니다. 안내데스크에서 결과를 확인한 후 상품 추첨에 도전해 보세요!"
+    ? "축하합니다! 6문제 중 3문제 이상 정답을 맞히셨습니다. 안내데스크에서 확인 후 상품 추첨에 도전하세요."
     : "아쉽지만 상품 추첨 참여 기준인 3문제 이상 정답에 도달하지 못했습니다. 다음에도 도전해 주세요!";
 }
 
