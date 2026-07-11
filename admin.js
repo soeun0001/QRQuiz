@@ -3,7 +3,6 @@ const ADMIN_AUTH_KEY = "quiz-mission-admin-auth-v1";
 const ADMIN_DRAFT_KEY = "quiz-mission-admin-draft-v1";
 const SURVEY_RESULTS_KEY = "quiz-mission-survey-results-v1";
 const BASE_URL_KEY = "quiz-mission-base-url-v1";
-const HINT_IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
 let mission = {
   title: "퀴즈를 풀어라",
@@ -78,13 +77,6 @@ function bindAdminEvents() {
   ].forEach((id) => {
     $(`#${id}`).addEventListener("input", applyQuestionEditorChanges);
   });
-  $("#question-media-image-file").addEventListener("change", () => readMediaFile("question-media-image-file", "question-media-image-src"));
-  $("#question-media-video-file").addEventListener("change", () => readMediaFile("question-media-video-file", "question-media-video-src"));
-  $("#question-media-audio-file").addEventListener("change", () => readMediaFile("question-media-audio-file", "question-media-audio-src"));
-  $("#question-image-file").addEventListener("change", readHintImageFile);
-  $("#question-image-src").addEventListener("input", updateHintPreview);
-  $("#question-image-alt").addEventListener("input", updateHintPreview);
-  $("#clear-hint-image-button").addEventListener("click", clearHintImage);
 }
 
 async function handleLogin(event) {
@@ -128,6 +120,7 @@ function renderAll() {
   $("#mission-final-hint-input").value = mission.finalHint || "";
   normalizeMissionSettings();
   $("#survey-enabled-input").checked = mission.settings.surveyEnabled;
+  showMediaStorageNotice();
   const savedBaseUrl =
     localStorage.getItem(BASE_URL_KEY) || defaultBaseUrl();
 
@@ -190,6 +183,82 @@ function showAdminStatus(message, isError = false) {
   status.style.fontWeight = message ? "900" : "";
 }
 
+function showMediaStorageNotice() {
+  const card = $("#save-draft-button")?.closest(".card");
+  if (!card || $("#media-storage-notice")) return;
+
+  const notice = document.createElement("p");
+  notice.id = "media-storage-notice";
+  notice.className = "help-text";
+  notice.textContent = "이미지, 영상, 오디오는 GitHub 저장소에 업로드한 뒤 ./파일명 형태의 경로만 입력해주세요. Data URL(base64)은 사용하지 않습니다.";
+  card.append(notice);
+}
+
+function saveDraftToLocalStorage() {
+  try {
+    localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(createLocalStorageDraft(mission)));
+    return true;
+  } catch (error) {
+    if (error?.name === "QuotaExceededError") {
+      showAdminStatus("브라우저 저장 공간이 부족해 미디어를 제외한 초안만 보관합니다. questions.json 다운로드는 계속 사용할 수 있습니다.", true);
+      return false;
+    }
+    showAdminStatus(`브라우저 초안을 저장할 수 없습니다: ${error.message}`, true);
+    return false;
+  }
+}
+
+function createLocalStorageDraft(source) {
+  return {
+    ...source,
+    settings: { ...(source.settings || {}) },
+    questions: (source.questions || []).map(stripDataUrlsFromQuestion),
+    surveyQuestions: (source.surveyQuestions || []).map((question) => ({ ...question })),
+  };
+}
+
+function stripDataUrlsFromQuestion(question) {
+  const cleanQuestion = { ...question };
+
+  if (isDataUrl(cleanQuestion.mediaUrl)) delete cleanQuestion.mediaUrl;
+  cleanQuestion.media = stripMediaDataUrls(cleanQuestion.media);
+  if (!cleanQuestion.media) delete cleanQuestion.media;
+
+  if (isDataUrl(cleanQuestion.imageHint?.src)) delete cleanQuestion.imageHint;
+  if (isDataUrl(cleanQuestion.hintImage?.src)) delete cleanQuestion.hintImage;
+  if (isDataUrl(cleanQuestion.imageHint)) delete cleanQuestion.imageHint;
+  if (isDataUrl(cleanQuestion.hintImage)) delete cleanQuestion.hintImage;
+
+  return cleanQuestion;
+}
+
+function stripMediaDataUrls(media) {
+  if (!media) return null;
+  const cleanMedia = {};
+  Object.entries(media).forEach(([key, value]) => {
+    cleanMedia[key] = value && typeof value === "object" && !Array.isArray(value)
+      ? { ...value }
+      : value;
+  });
+
+  ["image", "video", "audio"].forEach((key) => {
+    if (isDataUrl(cleanMedia[key]?.src) || isDataUrl(cleanMedia[key])) {
+      delete cleanMedia[key];
+    }
+  });
+
+  Object.keys(cleanMedia).forEach((key) => {
+    if (isDataUrl(cleanMedia[key]?.mediaUrl)) delete cleanMedia[key].mediaUrl;
+    if (isDataUrl(cleanMedia[key]?.url)) delete cleanMedia[key].url;
+  });
+
+  return Object.keys(cleanMedia).length ? cleanMedia : null;
+}
+
+function isDataUrl(value) {
+  return typeof value === "string" && value.trim().startsWith("data:");
+}
+
 function renderQuestionList() {
   const list = $("#question-list");
   list.innerHTML = "";
@@ -236,15 +305,10 @@ function renderQuestionEditor() {
   $("#question-media-image-src").value = question.media?.image?.src || "";
   $("#question-media-video-src").value = question.media?.video?.src || "";
   $("#question-media-audio-src").value = question.media?.audio?.src || "";
-  $("#question-media-image-file").value = "";
-  $("#question-media-video-file").value = "";
-  $("#question-media-audio-file").value = "";
-  $("#question-image-file").value = "";
   const hintImage = getQuestionHintImage(question);
   $("#question-image-src").value = hintImage?.src || "";
   $("#question-image-alt").value = hintImage?.alt || "";
   updateChoiceAvailability();
-  updateHintPreview();
 }
 
 function updateChoiceAvailability() {
@@ -283,67 +347,6 @@ function ensureQuestionTypeOptions() {
     option.textContent = label;
     typeSelect.append(option);
   });
-}
-
-function readMediaFile(fileInputId, targetInputId) {
-  const fileInput = $(`#${fileInputId}`);
-  const targetInput = $(`#${targetInputId}`);
-  const file = fileInput.files?.[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    targetInput.value = reader.result;
-    applyQuestionEditorChanges();
-  });
-  reader.readAsDataURL(file);
-}
-
-function readHintImageFile() {
-  const fileInput = $("#question-image-file");
-  const file = fileInput.files?.[0];
-  if (!file) return;
-
-  if (!HINT_IMAGE_TYPES.includes(file.type)) {
-    alert("PNG, JPG/JPEG, WEBP, SVG 이미지만 업로드할 수 있습니다.");
-    fileInput.value = "";
-    return;
-  }
-
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    $("#question-image-src").value = reader.result;
-    if (!$("#question-image-alt").value.trim()) {
-      $("#question-image-alt").value = file.name.replace(/\.[^.]+$/, "");
-    }
-    updateHintPreview();
-    applyQuestionEditorChanges();
-  });
-  reader.readAsDataURL(file);
-}
-
-function updateHintPreview() {
-  const preview = $("#hint-preview");
-  const image = $("#hint-preview-image");
-  const src = $("#question-image-src").value.trim();
-
-  if (!src) {
-    image.removeAttribute("src");
-    preview.classList.remove("is-visible");
-    return;
-  }
-
-  image.src = src;
-  image.alt = $("#question-image-alt").value.trim() || "힌트 이미지 미리보기";
-  preview.classList.add("is-visible");
-}
-
-function clearHintImage() {
-  $("#question-image-file").value = "";
-  $("#question-image-src").value = "";
-  $("#question-image-alt").value = "";
-  updateHintPreview();
-  applyQuestionEditorChanges();
 }
 
 function getQuestionHintImage(question) {
@@ -428,9 +431,9 @@ function readQuestionFromEditor(originalQuestion, options = {}) {
 
 function applyQuestionMediaFields(question) {
   const media = {};
-  const mediaImageSrc = $("#question-media-image-src").value.trim();
-  const mediaVideoSrc = $("#question-media-video-src").value.trim();
-  const mediaAudioSrc = $("#question-media-audio-src").value.trim();
+  const mediaImageSrc = readPathInput("question-media-image-src", "사진 경로");
+  const mediaVideoSrc = readPathInput("question-media-video-src", "영상 경로");
+  const mediaAudioSrc = readPathInput("question-media-audio-src", "오디오 경로");
   if (mediaImageSrc) media.image = { src: mediaImageSrc, alt: `${question.title || "문제"} 사진` };
   if (mediaVideoSrc) media.video = { src: mediaVideoSrc };
   if (mediaAudioSrc) media.audio = { src: mediaAudioSrc };
@@ -440,7 +443,7 @@ function applyQuestionMediaFields(question) {
     delete question.media;
   }
 
-  const imageSrc = $("#question-image-src").value.trim();
+  const imageSrc = readPathInput("question-image-src", "힌트 이미지 경로");
   if (imageSrc) {
     question.imageHint = {
       src: imageSrc,
@@ -452,6 +455,14 @@ function applyQuestionMediaFields(question) {
     delete question.imageHint;
     delete question.hintImage;
   }
+}
+
+function readPathInput(id, label) {
+  const value = $(`#${id}`).value.trim();
+  if (isDataUrl(value)) {
+    throw new Error(`${label}에는 Data URL(base64)을 사용할 수 없습니다. ./파일명 형태로 입력해주세요.`);
+  }
+  return value;
 }
 
 function addQuestion() {
@@ -482,12 +493,12 @@ function saveQuestion() {
     mission.questions[index] = readQuestionFromEditor(mission.questions[index], {
       validate: true,
     });
-    localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(mission));
+    const draftSaved = saveDraftToLocalStorage();
     renderQuestionList();
     renderQuestionEditor();
     renderQrList();
     renderResultCount();
-    showAdminStatus("문제를 저장했습니다.");
+    if (draftSaved) showAdminStatus("문제를 저장했습니다.");
   } catch (error) {
     showAdminStatus(`저장할 수 없습니다: ${error.message}`, true);
   }
@@ -647,11 +658,11 @@ function saveDraft() {
   try {
     applyQuestionEditorChanges({ render: false });
     syncMissionMeta();
-    localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(mission));
+    const draftSaved = saveDraftToLocalStorage();
     renderQuestionList();
     renderQrList();
     renderResultCount();
-    showAdminStatus("변경사항을 저장했습니다.");
+    if (draftSaved) showAdminStatus("변경사항을 저장했습니다.");
   } catch (error) {
     showAdminStatus(`저장할 수 없습니다: ${error.message}`, true);
   }
@@ -662,7 +673,7 @@ function downloadQuestionsJson() {
     applyQuestionEditorChanges({ render: false });
     syncMissionMeta();
     normalizeMissionSettings();
-    localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(mission));
+    const draftSaved = saveDraftToLocalStorage();
 
     const json = JSON.stringify(mission, null, 2);
     const blob = new Blob([json], {
@@ -678,7 +689,9 @@ function downloadQuestionsJson() {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    showAdminStatus("questions.json 다운로드를 시작했습니다.");
+    showAdminStatus(draftSaved
+      ? "questions.json 다운로드를 시작했습니다."
+      : "브라우저 초안 저장은 건너뛰었지만 questions.json 다운로드를 시작했습니다.");
   } catch (error) {
     showAdminStatus(`저장할 수 없습니다: ${error.message}`, true);
   }

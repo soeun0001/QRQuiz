@@ -281,28 +281,6 @@ textarea {
   font-size: 1.05rem;
 }
 
-.hint-preview {
-  display: none;
-  min-height: 150px;
-  margin: 0;
-  overflow: hidden;
-  border: 2px solid var(--line);
-  border-radius: 18px;
-  background: white;
-}
-
-.hint-preview.is-visible {
-  display: grid;
-  place-items: center;
-}
-
-.hint-preview img {
-  display: block;
-  width: 100%;
-  max-height: 220px;
-  object-fit: contain;
-}
-
 .qr-item {
   display: grid;
   grid-template-columns: 1fr auto;
