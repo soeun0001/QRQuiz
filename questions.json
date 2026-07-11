@@ -1,48 +1,52 @@
 {
   "title": "퀴즈를 풀어라",
   "description": "충주자연생태체험관 곳곳의 QR코드를 찾아 문제를 풀고 다음 장소 힌트를 확인하세요.",
-  "finalHint": "모든 미션을 완료했습니다. 설문조사를 마치고 안내 데스크로 돌아와 주세요.",
-  "settings": {
-    "surveyEnabled": false
-  },
+  "finalHint": "모든 미션을 완료했습니다.",
   "questions": [
     {
       "id": "snake",
       "type": "multiple",
-      "title": "길쭉한 친구 미션",
-      "prompt": "몸이 길고 다리가 없으며, 자라면서 허물을 벗는 동물은 누구일까요?",
-      "choices": [
-        "뱀",
-        "개구리",
-        "거북",
-        "수달"
-      ],
-      "answer": "뱀",
-      "points": 10,
-      "explanation": "뱀은 몸이 자라면서 낡은 피부를 벗는 탈피를 합니다.",
-      "nextHint": "몸이 아주 길고 허물을 벗는 친구를 찾아가세요.",
+      "title": "1번 퀴즈를 풀어라",
+      "prompt": "혈앵무의 설명으로 틀린것은?",
+      "answer": "3. 우리나라 하천에서 자연적으로 서식하는 토종 물고기이다.",
+      "points": 1,
+      "explanation": "혈앵무의 사람에 의해 인공적으로 만들어진 관상어입니다.",
+      "nextHint": "2층 로비에 인사하는 앵무새친구가 있어요!",
       "imageHint": {
         "src": "assets/snake-hint.svg",
-        "alt": "뱀 무늬 일부 힌트",
+        "alt": "혈앵무",
         "position": "center"
       },
-      "location": "1층 로비"
+      "choices": [
+        "1.성체 기준 최대 15~20cm까지 자란다.",
+        "2. 최대 수명은 10년 ~15년이다.",
+        "3. 우리나라 하천에서 자연적으로 서식하는 토종 물고기이다."
+      ]
     },
     {
       "id": "frog",
-      "type": "ox",
-      "title": "폴짝폴짝 미션",
-      "prompt": "개구리는 어릴 때 올챙이로 물속에서 지내다가 자라면 다리가 생긴다.",
-      "answer": "O",
-      "points": 10,
-      "explanation": "개구리는 올챙이에서 점점 다리와 폐가 발달하며 어른 개구리가 됩니다.",
-      "nextHint": "물가에서 폴짝 뛰는 친구가 있는 곳으로 가세요.",
-      "location": "나나의 방"
+      "type": "choice",
+      "title": "2번 퀴즈를 풀어라",
+      "prompt": "누가 미디엄코카투 일까요?",
+      "answer": "1",
+      "points": 1,
+      "explanation": "2번은 미첼코카투 3번은 엄브렐라코카투입니다",
+      "nextHint": "느리지만 단단한 집을 등에 지고 다니는 친구를 찾아보세요.",
+      "options": [
+        "1",
+        "2",
+        "3"
+      ],
+      "choices": [
+        "1",
+        "2",
+        "3"
+      ]
     },
     {
       "id": "turtle",
-      "type": "multiple",
-      "title": "단단한 등 미션",
+      "type": "choice",
+      "title": "3번 퀴즈를 풀어라",
       "prompt": "거북의 등을 보호하는 단단한 부분을 무엇이라고 부를까요?",
       "choices": [
         "등껍질",
@@ -51,59 +55,65 @@
         "부리"
       ],
       "answer": "등껍질",
-      "points": 10,
+      "points": 1,
       "explanation": "거북은 단단한 등껍질로 몸을 보호합니다.",
-      "nextHint": "느리지만 단단한 집을 등에 지고 다니는 친구를 찾아보세요.",
-      "location": "동물마을"
+      "nextHint": "메인전시실에 요술스캐너가 있어요!",
+      "options": [
+        "등껍질",
+        "날개",
+        "비늘털",
+        "부리"
+      ]
     },
     {
       "id": "otter",
-      "type": "short",
-      "title": "물속 사냥꾼 미션",
+      "type": "text",
+      "title": "4번 퀴즈를 풀어라",
       "prompt": "물속에서 헤엄을 잘 치고 물고기를 잡아먹는 귀여운 포유류는 누구일까요?",
-      "answer": [
-        "수달",
-        "otter"
-      ],
-      "points": 15,
+      "answer": "수달\notter",
+      "points": 1,
       "explanation": "수달은 물갈퀴와 유선형 몸으로 헤엄을 잘 치는 포유류입니다.",
-      "nextHint": "물속을 빠르게 헤엄치는 친구의 전시물을 찾아가세요.",
-      "location": "메인전시실"
+      "nextHint": "지하 놀이체험실에 놀러가자!",
+      "options": []
     },
     {
       "id": "insect",
-      "type": "multiple",
-      "title": "작은 다리 미션",
-      "prompt": "곤충의 다리는 모두 몇 개일까요?",
-      "choices": [
-        "2개",
-        "4개",
-        "6개",
-        "8개"
-      ],
-      "answer": "6개",
-      "points": 10,
-      "explanation": "곤충은 머리, 가슴, 배로 나뉘고 가슴에 다리 6개가 있습니다.",
-      "nextHint": "작지만 다리가 6개인 친구들이 모여 있는 곳으로 이동하세요.",
-      "location": "지하 놀이체험실"
+      "type": "short",
+      "title": "5번 퀴즈를 풀어라",
+      "prompt": "대기 중 수증기 속 물방울에 의해 햇빛이나 달빛이 굴절, 반사, 분산되면서 나타나는 현상은?",
+      "answer": "무지개",
+      "points": 1,
+      "explanation": "무지개입니다.",
+      "nextHint": "우리 산책하러갈까?\n우천시를 대비하여 로비에 QR코드를 하나 더 숨겨놨습니다."
     },
     {
       "id": "finish",
-      "type": "ox",
-      "title": "생태 약속 미션",
-      "prompt": "전시관의 동물과 식물을 오래 지키려면 만지거나 두드리지 않고 조용히 관찰해야 한다.",
-      "answer": "O",
-      "points": 5,
-      "explanation": "조용한 관찰은 동물의 스트레스를 줄이고 모두가 즐겁게 체험하는 방법입니다.",
-      "nextHint": "마지막입니다. 설문조사로 이동해 미션을 마무리하세요.",
-      "location": "산책길"
+      "type": "choice",
+      "title": "6번 퀴즈를 풀어라",
+      "prompt": "가지에는 2~3줄의 날개가 달려있며, 가을에는 잎이 진홍색으로 물들고 \n주활색 열매를 맺어 불타는 덤불이라는 별칭으로 불리는것은?",
+      "answer": "2. 화살나무",
+      "points": 1,
+      "explanation": "보기 중 화살나무만 2~3줄의 날개를 가지고 있습니다.",
+      "nextHint": "수고하셨습니다.",
+      "options": [
+        "1.가시나무",
+        "2.화살나무",
+        "3.회잎나무",
+        "4.참빗살나무"
+      ],
+      "choices": [
+        "1.가시나무",
+        "2.화살나무",
+        "3.회잎나무",
+        "4.참빗살나무"
+      ]
     }
   ],
   "surveyQuestions": [
     {
       "id": "favoriteAnimal",
       "label": "가장 재미있었던 동물",
-      "type": "text",
+      "type": "textarea",
       "required": true,
       "placeholder": "예: 뱀, 수달, 개구리"
     },
@@ -119,6 +129,15 @@
       "type": "textarea",
       "required": false,
       "placeholder": "또 하고 싶은 미션이나 기억나는 장면을 적어 주세요"
+    },
+    {
+      "id": "survey-mref6606",
+      "label": "새 설문 문항",
+      "type": "rating",
+      "required": true
     }
-  ]
+  ],
+  "settings": {
+    "surveyEnabled": false
+  }
 }
