@@ -19,7 +19,11 @@ let selectedQuestionId = null;
 
 const $ = (selector) => document.querySelector(selector);
 
-initAdmin();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAdmin, { once: true });
+} else {
+  initAdmin();
+}
 
 async function initAdmin() {
   bindAdminEvents();
@@ -36,7 +40,7 @@ function bindAdminEvents() {
   });
 
   $("#save-draft-button").addEventListener("click", saveDraft);
-  $("#download-json-button").addEventListener("click", downloadJson);
+  $("#download-json-button").addEventListener("click", downloadQuestionsJson);
   $("#add-question-button").addEventListener("click", addQuestion);
   $("#save-question-button").addEventListener("click", saveQuestion);
   $("#delete-question-button").addEventListener("click", deleteQuestion);
@@ -111,7 +115,9 @@ async function loadMission() {
   const draft = localStorage.getItem(ADMIN_DRAFT_KEY);
   if (draft) return JSON.parse(draft);
 
-  const response = await fetch("questions.json", { cache: "no-store" });
+  const response = await fetch(`./questions.json?v=${Date.now()}`, {
+    cache: "no-store",
+  });
   if (!response.ok) return mission;
   return response.json();
 }
@@ -162,6 +168,28 @@ function setSurveyEnabled(value) {
   mission.settings.surveyEnabled = value === true;
 }
 
+function showAdminStatus(message, isError = false) {
+  let status = $("#admin-status-message");
+  if (!status) {
+    status = document.createElement("p");
+    status.id = "admin-status-message";
+    status.className = "help-text";
+    const editorTitle = $("#question-id")?.closest(".card")?.querySelector("h2");
+    const fallback = $("#save-draft-button")?.closest(".card");
+    if (editorTitle) {
+      editorTitle.insertAdjacentElement("afterend", status);
+    } else if (fallback) {
+      fallback.append(status);
+    } else {
+      document.body.append(status);
+    }
+  }
+
+  status.textContent = message;
+  status.style.color = isError ? "var(--danger)" : "var(--primary-dark)";
+  status.style.fontWeight = message ? "900" : "";
+}
+
 function renderQuestionList() {
   const list = $("#question-list");
   list.innerHTML = "";
@@ -194,14 +222,14 @@ function renderQuestionEditor() {
 
   ensureQuestionTypeOptions();
   $("#question-id").value = question.id || "";
-  $("#question-type").value = question.type || "multiple";
+  $("#question-type").value = dataTypeToEditorType(question.type);
   $("#question-id").readOnly = true;
   $("#question-type").disabled = false;
   $("#question-points").disabled = false;
   $("#question-title").value = question.title || "";
   $("#question-prompt").value = question.prompt || "";
   $("#question-points").value = question.points ?? 10;
-  $("#question-choices").value = (question.choices || []).join("\n");
+  $("#question-choices").value = getQuestionOptions(question).join("\n");
   $("#question-answer").value = Array.isArray(question.answer) ? question.answer.join("\n") : question.answer || "";
   $("#question-explanation").value = question.explanation || "";
   $("#question-next-hint").value = question.nextHint || "";
@@ -222,6 +250,22 @@ function renderQuestionEditor() {
 function updateChoiceAvailability() {
   const type = $("#question-type").value;
   $("#question-choices").disabled = type !== "multiple";
+}
+
+function dataTypeToEditorType(type) {
+  if (type === "choice" || type === "multiple") return "multiple";
+  if (type === "text" || type === "short") return "short";
+  return "ox";
+}
+
+function editorTypeToDataType(type) {
+  if (type === "multiple" || type === "choice") return "choice";
+  if (type === "short" || type === "text") return "text";
+  return "ox";
+}
+
+function getQuestionOptions(question) {
+  return Array.isArray(question.options) ? question.options : question.choices || [];
 }
 
 function ensureQuestionTypeOptions() {
@@ -307,25 +351,82 @@ function getQuestionHintImage(question) {
 }
 
 function applyQuestionEditorChanges(options = {}) {
-  const shouldRender = options.render !== false;
-  const question = mission.questions.find((item) => item.id === selectedQuestionId);
-  if (!question) return;
+  try {
+    const shouldRender = options.render !== false;
+    const index = getSelectedQuestionIndex();
+    if (index < 0) return;
 
-  question.title = $("#question-title").value.trim();
-  question.type = $("#question-type").value;
-  question.prompt = $("#question-prompt").value.trim();
-  question.points = Math.max(0, Number($("#question-points").value) || 0);
-  question.answer = parseLines($("#question-answer").value);
-  if (question.answer.length === 1) question.answer = question.answer[0];
-  question.explanation = $("#question-explanation").value.trim();
-  question.nextHint = $("#question-next-hint").value.trim();
+    mission.questions[index] = readQuestionFromEditor(mission.questions[index], {
+      validate: false,
+    });
 
-  if (question.type === "multiple") {
-    question.choices = parseLines($("#question-choices").value);
+    if (shouldRender) {
+      renderQuestionList();
+      renderQrList();
+    }
+    showAdminStatus("");
+  } catch (error) {
+    showAdminStatus(`저장할 수 없습니다: ${error.message}`, true);
+  }
+}
+
+function getSelectedQuestionIndex() {
+  return mission.questions.findIndex((item) => item.id === selectedQuestionId);
+}
+
+function readQuestionFromEditor(originalQuestion, options = {}) {
+  const shouldValidate = options.validate === true;
+  const editorType = $("#question-type").value;
+  const type = editorTypeToDataType(editorType);
+  const title = $("#question-title").value.trim();
+  const prompt = $("#question-prompt").value.trim();
+  const answerInput = $("#question-answer").value.trim();
+  const points = Math.max(0, Number($("#question-points").value) || 0);
+
+  if (shouldValidate && !title) throw new Error("문제 제목을 입력해주세요.");
+  if (shouldValidate && !prompt) throw new Error("문제 내용을 입력해주세요.");
+  if (shouldValidate && !answerInput) throw new Error("정답을 입력해주세요.");
+
+  const question = {
+    ...originalQuestion,
+    id: originalQuestion.id,
+    type,
+    title,
+    prompt,
+    points,
+    explanation: $("#question-explanation").value.trim(),
+    nextHint: $("#question-next-hint").value.trim(),
+  };
+
+  if (type === "choice") {
+    const optionList = parseLines($("#question-choices").value);
+    const answer = parseLines(answerInput)[0] || "";
+    if (shouldValidate && optionList.length < 2) throw new Error("객관식 보기는 2개 이상 입력해주세요.");
+    if (shouldValidate && answer && !optionList.includes(answer)) {
+      throw new Error("객관식 정답은 보기와 정확히 일치해야 합니다.");
+    }
+    question.options = optionList;
+    question.choices = optionList;
+    question.answer = answer;
+  } else if (type === "ox") {
+    const answer = answerInput.toUpperCase();
+    if (shouldValidate && !["O", "X"].includes(answer)) {
+      throw new Error("OX 정답은 O 또는 X만 입력해주세요.");
+    }
+    question.options = ["O", "X"];
+    question.answer = ["O", "X"].includes(answer) ? answer : "";
+    delete question.choices;
   } else {
+    question.options = [];
+    question.answer = answerInput;
     delete question.choices;
   }
 
+  applyQuestionMediaFields(question);
+  return question;
+}
+
+function applyQuestionMediaFields(question) {
   const media = {};
   const mediaImageSrc = $("#question-media-image-src").value.trim();
   const mediaVideoSrc = $("#question-media-video-src").value.trim();
@@ -351,20 +452,16 @@ function applyQuestionEditorChanges(options = {}) {
     delete question.imageHint;
     delete question.hintImage;
   }
-
-  if (shouldRender) {
-    renderQuestionList();
-    renderQrList();
-  }
 }
 
 function addQuestion() {
   const id = uniqueId("question");
   mission.questions.push({
     id,
-    type: "multiple",
+    type: "choice",
     title: "새 문제",
     prompt: "",
+    options: ["보기 1", "보기 2", "보기 3", "보기 4"],
     choices: ["보기 1", "보기 2", "보기 3", "보기 4"],
     answer: "보기 1",
     points: 10,
@@ -378,12 +475,22 @@ function addQuestion() {
 }
 
 function saveQuestion() {
-  const question = mission.questions.find((item) => item.id === selectedQuestionId);
-  if (!question) return;
-  applyQuestionEditorChanges();
-  renderQuestionList();
-  renderQrList();
-  saveDraft();
+  try {
+    const index = getSelectedQuestionIndex();
+    if (index < 0) throw new Error("저장할 문제를 선택해주세요.");
+
+    mission.questions[index] = readQuestionFromEditor(mission.questions[index], {
+      validate: true,
+    });
+    localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(mission));
+    renderQuestionList();
+    renderQuestionEditor();
+    renderQrList();
+    renderResultCount();
+    showAdminStatus("문제를 저장했습니다.");
+  } catch (error) {
+    showAdminStatus(`저장할 수 없습니다: ${error.message}`, true);
+  }
 }
 
 function deleteQuestion() {
@@ -537,19 +644,44 @@ async function copyQr(canvas, fallbackUrl) {
 }
 
 function saveDraft() {
-  applyQuestionEditorChanges({ render: false });
-  syncMissionMeta();
-  localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(mission));
-  renderQuestionList();
-  renderQrList();
-  renderResultCount();
+  try {
+    applyQuestionEditorChanges({ render: false });
+    syncMissionMeta();
+    localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(mission));
+    renderQuestionList();
+    renderQrList();
+    renderResultCount();
+    showAdminStatus("변경사항을 저장했습니다.");
+  } catch (error) {
+    showAdminStatus(`저장할 수 없습니다: ${error.message}`, true);
+  }
 }
 
-function downloadJson() {
-  saveDraft();
-  normalizeMissionSettings();
-  downloadText("questions.json", JSON.stringify(mission, null, 2), "application/json");
-  alert("questions.json 다운로드를 시작했습니다.");
+function downloadQuestionsJson() {
+  try {
+    applyQuestionEditorChanges({ render: false });
+    syncMissionMeta();
+    normalizeMissionSettings();
+    localStorage.setItem(ADMIN_DRAFT_KEY, JSON.stringify(mission));
+
+    const json = JSON.stringify(mission, null, 2);
+    const blob = new Blob([json], {
+      type: "application/json;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "questions.json";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    showAdminStatus("questions.json 다운로드를 시작했습니다.");
+  } catch (error) {
+    showAdminStatus(`저장할 수 없습니다: ${error.message}`, true);
+  }
 }
 
 function downloadSurveyCsv() {
@@ -625,7 +757,13 @@ function uniqueId(prefix) {
 }
 
 function typeLabel(type) {
-  return { multiple: "객관식", ox: "OX", short: "주관식" }[type] || type;
+  return {
+    multiple: "객관식",
+    choice: "객관식",
+    ox: "OX",
+    short: "주관식",
+    text: "주관식",
+  }[type] || type;
 }
 
 function csvCell(value) {

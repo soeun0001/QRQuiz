@@ -48,7 +48,9 @@ async function init() {
 }
 
 async function loadMission() {
-  const response = await fetch("questions.json", { cache: "no-store" });
+  const response = await fetch(`./questions.json?v=${Date.now()}`, {
+    cache: "no-store",
+  });
   if (!response.ok) throw new Error("questions.json not found");
   return response.json();
 }
@@ -133,7 +135,7 @@ function renderQuestion(question) {
   const form = $("#answer-form");
   form.innerHTML = "";
 
-  if (question.type === "short") {
+  if (question.type === "short" || question.type === "text") {
     const input = document.createElement("input");
     input.type = "text";
     input.name = "answer";
@@ -144,7 +146,7 @@ function renderQuestion(question) {
     return;
   }
 
-  const choices = question.type === "ox" ? ["O", "X"] : question.choices || [];
+  const choices = question.type === "ox" ? ["O", "X"] : question.options || question.choices || [];
   const template = $("#choice-template");
   choices.forEach((choice) => {
     const node = template.content.firstElementChild.cloneNode(true);
@@ -594,7 +596,9 @@ function escapeAttribute(value) {
 function typeLabel(type) {
   return {
     multiple: "객관식",
+    choice: "객관식",
     ox: "O / X",
     short: "주관식",
+    text: "주관식",
   }[type] || "문제";
 }
