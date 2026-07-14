@@ -5,23 +5,34 @@
   "questions": [
     {
       "id": "snake",
-      "type": "multiple",
+      "type": "choice",
       "title": "1번 퀴즈를 풀어라",
       "prompt": "혈앵무의 설명으로 틀린것은?",
       "answer": "3. 우리나라 하천에서 자연적으로 서식하는 토종 물고기이다.",
       "points": 1,
       "explanation": "혈앵무의 사람에 의해 인공적으로 만들어진 관상어입니다.",
       "nextHint": "2층 로비에 인사하는 앵무새친구가 있어요!",
-      "imageHint": {
-        "src": "assets/snake-hint.svg",
-        "alt": "혈앵무",
-        "position": "center"
-      },
       "choices": [
         "1.성체 기준 최대 15~20cm까지 자란다.",
         "2. 최대 수명은 10년 ~15년이다.",
         "3. 우리나라 하천에서 자연적으로 서식하는 토종 물고기이다."
-      ]
+      ],
+      "options": [
+        "1.성체 기준 최대 15~20cm까지 자란다.",
+        "2. 최대 수명은 10년 ~15년이다.",
+        "3. 우리나라 하천에서 자연적으로 서식하는 토종 물고기이다."
+      ],
+      "media": {
+        "image": {
+          "src": "./cockatoo-choice.png",
+          "alt": "1번 퀴즈를 풀어라 사진"
+        }
+      },
+      "imageHint": {
+        "src": "assets/snake-hint.svg",
+        "alt": "혈앵무",
+        "position": "center"
+      }
     },
     {
       "id": "frog",
