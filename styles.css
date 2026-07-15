@@ -472,7 +472,15 @@ p {
   display: grid;
 }
 
-.question-media img,
+.question-media img {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  display: block;
+  margin: 16px auto;
+  border-radius: 16px;
+}
+
 .question-media video {
   width: 100%;
   max-height: 320px;

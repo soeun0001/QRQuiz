@@ -24,7 +24,7 @@
       ],
       "media": {
         "image": {
-          "src": "./cockatoo-choice.png",
+          "src": "./Blood parrot cichlid.png",
           "alt": "1번 퀴즈를 풀어라 사진"
         }
       },
@@ -52,7 +52,13 @@
         "1",
         "2",
         "3"
-      ]
+      ],
+      "media": {
+        "image": {
+          "src": "./cockatoo-choice.png",
+          "alt": "2번 퀴즈를 풀어라 사진"
+        }
+      }
     },
     {
       "id": "turtle",
@@ -74,7 +80,13 @@
         "날개",
         "비늘털",
         "부리"
-      ]
+      ],
+      "media": {
+        "image": {
+          "src": "./Leopard tortoise.png",
+          "alt": "3번 퀴즈를 풀어라 사진"
+        }
+      }
     },
     {
       "id": "otter",
@@ -89,13 +101,20 @@
     },
     {
       "id": "insect",
-      "type": "short",
+      "type": "text",
       "title": "5번 퀴즈를 풀어라",
       "prompt": "대기 중 수증기 속 물방울에 의해 햇빛이나 달빛이 굴절, 반사, 분산되면서 나타나는 현상은?",
       "answer": "무지개",
       "points": 1,
       "explanation": "무지개입니다.",
-      "nextHint": "우리 산책하러갈까?\n우천시를 대비하여 로비에 QR코드를 하나 더 숨겨놨습니다."
+      "nextHint": "우리 산책하러갈까?\n우천시를 대비하여 로비에 QR코드를 하나 더 숨겨놨습니다.",
+      "options": [],
+      "media": {
+        "image": {
+          "src": "./Rainbow.png",
+          "alt": "5번 퀴즈를 풀어라 사진"
+        }
+      }
     },
     {
       "id": "finish",
@@ -117,7 +136,13 @@
         "2.화살나무",
         "3.회잎나무",
         "4.참빗살나무"
-      ]
+      ],
+      "media": {
+        "image": {
+          "src": "./Winged spindle.png",
+          "alt": "6번 퀴즈를 풀어라 사진"
+        }
+      }
     }
   ],
   "surveyQuestions": [
