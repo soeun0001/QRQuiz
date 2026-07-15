@@ -29,6 +29,9 @@ body {
     linear-gradient(180deg, var(--sky) 0%, #effbe9 44%, #fff7df 100%);
   color: var(--ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  word-break: keep-all;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
 }
 
 button,
@@ -36,6 +39,8 @@ input,
 select,
 textarea {
   font: inherit;
+  letter-spacing: -0.02em;
+  word-break: keep-all;
 }
 
 button {
@@ -123,19 +128,19 @@ figure {
 
 h1 {
   margin-bottom: 0;
-  font-size: clamp(1.05rem, 5vw, 1.55rem);
-  line-height: 1.15;
+  font-size: clamp(0.98rem, 4.5vw, 1.35rem);
+  line-height: 1.45;
 }
 
 h2 {
-  margin-bottom: 12px;
-  font-size: clamp(1.75rem, 8vw, 2.45rem);
-  line-height: 1.12;
+  margin-bottom: 16px;
+  font-size: clamp(1.45rem, 6.7vw, 2.05rem);
+  line-height: 1.45;
 }
 
 p {
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.45;
 }
 
 .icon-button {
@@ -431,8 +436,8 @@ p {
 }
 
 .large-button {
-  min-height: 64px;
-  font-size: 1.2rem;
+  min-height: 60px;
+  font-size: 1.04rem;
 }
 
 .quiz-card {
@@ -458,9 +463,9 @@ p {
 .question-text {
   margin-bottom: 0;
   color: var(--ink);
-  font-size: clamp(1.45rem, 7vw, 2rem);
+  font-size: clamp(1.22rem, 5.8vw, 1.68rem);
   font-weight: 900;
-  line-height: 1.32;
+  line-height: 1.45;
 }
 
 .question-media {
@@ -506,7 +511,7 @@ p {
   border-radius: 22px;
   background: white;
   color: var(--ink);
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 900;
 }
 
@@ -531,7 +536,7 @@ p {
   background: white;
   padding: 17px;
   color: var(--ink);
-  font-size: 1.08rem;
+  font-size: 0.98rem;
 }
 
 .survey-form label {
@@ -545,12 +550,12 @@ p {
   display: inline-flex;
   align-items: center;
   min-height: 44px;
-  margin-bottom: 16px;
+  margin-bottom: 22px;
   border-radius: 999px;
   padding: 0 18px;
   background: rgba(32, 166, 106, 0.16);
   color: var(--good);
-  font-size: 1.1rem;
+  font-size: 0.98rem;
   font-weight: 1000;
 }
 
@@ -560,18 +565,20 @@ p {
 }
 
 .explanation {
+  margin: 12px 0 24px;
   color: var(--ink);
-  font-size: 1.12rem;
+  font-size: 1rem;
   font-weight: 750;
+  line-height: 1.45;
 }
 
 .hint-card {
   display: grid;
-  gap: 8px;
-  margin: 20px 0;
+  gap: 12px;
+  margin: 28px 0;
   border-radius: 28px;
   background: linear-gradient(180deg, #fffdf3 0%, #eaffe3 100%);
-  padding: 20px;
+  padding: 26px 20px;
   text-align: center;
 }
 
@@ -582,15 +589,15 @@ p {
 .hint-title {
   display: block;
   color: var(--leaf-dark);
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   font-weight: 1000;
   text-align: center;
 }
 
 .hint-card strong {
   color: var(--ink);
-  font-size: clamp(1.3rem, 6vw, 1.8rem);
-  line-height: 1.35;
+  font-size: clamp(1.12rem, 5.2vw, 1.5rem);
+  line-height: 1.45;
 }
 
 .image-hint {
@@ -679,15 +686,15 @@ p {
 }
 
 .final-correct {
-  margin: 12px 0 16px;
+  margin: 18px 0 22px;
   border: 4px solid #fff1b7;
   border-radius: 26px;
   background: white;
   padding: 18px;
   color: var(--leaf-dark);
-  font-size: clamp(2rem, 10vw, 3rem);
+  font-size: clamp(1.65rem, 8.4vw, 2.45rem);
   font-weight: 1000;
-  line-height: 1;
+  line-height: 1.15;
 }
 
 .confetti span {
@@ -832,6 +839,6 @@ dd {
   }
 
   .question-text {
-    font-size: 1.32rem;
+    font-size: 1.14rem;
   }
 }

@@ -27,11 +27,6 @@
           "src": "./Blood parrot cichlid.png",
           "alt": "1번 퀴즈를 풀어라 사진"
         }
-      },
-      "imageHint": {
-        "src": "assets/snake-hint.svg",
-        "alt": "혈앵무",
-        "position": "center"
       }
     },
     {
@@ -93,7 +88,7 @@
       "type": "text",
       "title": "4번 퀴즈를 풀어라",
       "prompt": "물속에서 헤엄을 잘 치고 물고기를 잡아먹는 귀여운 포유류는 누구일까요?",
-      "answer": "수달\notter",
+      "answer": "수달",
       "points": 1,
       "explanation": "수달은 물갈퀴와 유선형 몸으로 헤엄을 잘 치는 포유류입니다.",
       "nextHint": "지하 놀이체험실에 놀러가자!",

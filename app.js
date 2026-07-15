@@ -2,6 +2,14 @@ const STORAGE_KEY = "quiz-mission-player-state-v2";
 const SURVEY_RESULTS_KEY = "quiz-mission-survey-results-v1";
 const TOTAL_QUESTIONS = 6;
 const PRIZE_THRESHOLD = 3;
+const DEFAULT_LOCATIONS = [
+  "1층 로비",
+  "나나의 방",
+  "동물마을",
+  "메인전시실",
+  "지하 놀이체험실",
+  "산책길",
+];
 
 const screens = {
   home: document.querySelector("#home-screen"),
@@ -37,6 +45,7 @@ async function init() {
 
   try {
     mission = await loadMission();
+    normalizeQuestionLocations();
     $("#mission-title").textContent = mission.title || "퀴즈를 풀어라";
     state = { ...state, ...loadState() };
     renderSurvey();
@@ -235,14 +244,6 @@ function checkAnswer() {
   saveState();
   lastResult = { isCorrect, question: activeQuestion };
 
-  if (!getNextUncompletedQuestion() && !isSurveyEnabled()) {
-    history.replaceState(null, "", location.pathname);
-    renderComplete();
-    updateProgress();
-    showScreen("complete");
-    return;
-  }
-
   renderResult();
   updateProgress();
   showScreen("result");
@@ -269,14 +270,26 @@ function renderResult() {
   const imageHint = $("#image-hint");
   const hintImage = $("#hint-image");
   const hintImageData = question.imageHint || question.hintImage || null;
+  const hasNextQuestion = Boolean(getNextUncompletedQuestion());
 
   badge.textContent = isCorrect ? "정답입니다!" : "아쉽지만 정답이 아니에요!";
   badge.classList.toggle("is-wrong", !isCorrect);
-  $("#result-title").textContent = isCorrect ? `${question.points || 0}점을 획득했어요` : "정답과 해설을 확인하고 다음 장소로 이동해 주세요.";
+  $("#result-title").textContent = isCorrect
+    ? `${question.points || 0}점을 획득했어요`
+    : hasNextQuestion
+      ? "정답과 해설을 확인하고 다음 장소로 이동해 주세요."
+      : "정답과 해설을 확인해 주세요.";
   $("#explanation").textContent = question.explanation || "";
-  hintCard.classList.remove("is-hidden");
-  $("#next-hint").textContent = question.nextHint || mission.finalHint || "다음 장소로 이동하세요.";
   $("#next-button").textContent = nextButtonLabel();
+
+  hintCard.classList.toggle("is-hidden", !hasNextQuestion);
+  if (!hasNextQuestion) {
+    hintImage.removeAttribute("src");
+    imageHint.classList.remove("is-visible");
+    return;
+  }
+
+  $("#next-hint").textContent = question.nextHint || "다음 장소로 이동하세요.";
 
   if (hintImageData?.src) {
     hintImage.src = hintImageData.src;
@@ -291,7 +304,7 @@ function renderResult() {
 
 function nextButtonLabel() {
   if (getNextUncompletedQuestion()) return "다음 QR 찾기";
-  return isSurveyEnabled() ? "설문조사 하기" : "결과 보기";
+  return "결과 확인하기";
 }
 
 function goNext() {
@@ -463,7 +476,16 @@ function returnFromGuard() {
 }
 
 function placeName(index) {
-  return mission.questions[index]?.location || `미션 ${index + 1}`;
+  return mission.questions[index]?.location || DEFAULT_LOCATIONS[index] || `미션 ${index + 1}`;
+}
+
+function normalizeQuestionLocations() {
+  if (!mission?.questions) return;
+  mission.questions.forEach((question, index) => {
+    if (!question.location && DEFAULT_LOCATIONS[index]) {
+      question.location = DEFAULT_LOCATIONS[index];
+    }
+  });
 }
 
 function renderSurvey() {
