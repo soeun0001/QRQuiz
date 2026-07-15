@@ -160,12 +160,13 @@ function renderQuestion(question) {
 function renderQuestionMedia(question) {
   const container = $("#question-media");
   const media = question.media || {};
+  const questionImage = getQuestionImage(question);
   container.innerHTML = "";
 
-  if (media.image?.src) {
+  if (questionImage.src) {
     const image = document.createElement("img");
-    image.src = media.image.src;
-    image.alt = media.image.alt || "문제 사진";
+    image.src = questionImage.src;
+    image.alt = questionImage.alt || "문제 사진";
     image.loading = "lazy";
     container.append(image);
   }
@@ -189,6 +190,24 @@ function renderQuestionMedia(question) {
   }
 
   container.classList.toggle("is-visible", Boolean(container.children.length));
+}
+
+function getQuestionImage(question) {
+  if (question.media?.image?.src) {
+    return {
+      src: question.media.image.src,
+      alt: question.media.image.alt || "문제 사진",
+    };
+  }
+
+  if (typeof question.image === "string" && question.image.trim()) {
+    return {
+      src: question.image.trim(),
+      alt: question.title ? `${question.title} 사진` : "문제 사진",
+    };
+  }
+
+  return { src: "", alt: "" };
 }
 
 function checkAnswer() {
