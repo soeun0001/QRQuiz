@@ -85,14 +85,34 @@
     },
     {
       "id": "otter",
-      "type": "text",
+      "type": "choice",
       "title": "4번 퀴즈를 풀어라",
-      "prompt": "물속에서 헤엄을 잘 치고 물고기를 잡아먹는 귀여운 포유류는 누구일까요?",
-      "answer": "수달",
+      "prompt": "나비는 알 → 애벌레 → 번데기 → 나비의 순서로 자랍니다. 이러한 성장 과정을 무엇이라고 할까요?",
+      "answer": "한살이",
       "points": 1,
-      "explanation": "수달은 물갈퀴와 유선형 몸으로 헤엄을 잘 치는 포유류입니다.",
+      "explanation": "한살이는 생물이 자라면서 성장하는 과정을 말합니다. \n나비는 알 → 애벌레 → 번데기 → 나비의 순서로 자라며, \n이를 나비의 한살이라고 합니다.",
       "nextHint": "지하 놀이체험실에 놀러가자!",
-      "options": []
+      "options": [
+        "변신",
+        "한살이",
+        "번식"
+      ],
+      "choices": [
+        "변신",
+        "한살이",
+        "번식"
+      ],
+      "media": {
+        "image": {
+          "src": "./Butterfly hint.png",
+          "alt": "4번 퀴즈를 풀어라 사진"
+        }
+      },
+      "imageHint": {
+        "src": "./Butterfly.png",
+        "alt": "",
+        "position": "center"
+      }
     },
     {
       "id": "insect",
