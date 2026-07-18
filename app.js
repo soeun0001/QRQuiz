@@ -46,6 +46,7 @@ async function init() {
   try {
     mission = await loadMission();
     normalizeQuestionLocations();
+    normalizeSurveyConfig();
     $("#mission-title").textContent = mission.title || "퀴즈를 풀어라";
     state = { ...state, ...loadState() };
     renderSurvey();
@@ -71,6 +72,7 @@ function bindEvents() {
   $("#resume-button").addEventListener("click", resumeMission);
   $("#check-button").addEventListener("click", checkAnswer);
   $("#next-button").addEventListener("click", goNext);
+  $("#external-survey-button").addEventListener("click", openExternalSurvey);
   $("#reset-button").addEventListener("click", resetMission);
   $("#stop-scanner-button").addEventListener("click", stopScannerAndGoHome);
   $("#guard-confirm-button").addEventListener("click", returnFromGuard);
@@ -97,7 +99,7 @@ function resumeMission() {
   }
 
   renderComplete();
-  showScreen(isSurveyEnabled() && !state.survey ? "survey" : "complete");
+  showScreen("complete");
 }
 
 function showNotice() {
@@ -316,11 +318,6 @@ function goNext() {
     return;
   }
 
-  if (isSurveyEnabled()) {
-    showScreen("survey");
-    return;
-  }
-
   state.survey = null;
   saveState();
   renderComplete();
@@ -488,17 +485,41 @@ function normalizeQuestionLocations() {
   });
 }
 
+function normalizeSurveyConfig() {
+  const surveyQuestions = mission.survey?.questions?.length
+    ? mission.survey.questions
+    : defaultSurveyQuestions();
+  const enabled = mission.survey?.enabled === true;
+
+  mission.survey = {
+    enabled,
+    externalUrl: mission.survey?.externalUrl || "",
+    eventName: mission.survey?.eventName || "행사 만족도 조사",
+    questions: surveyQuestions.map(normalizeSurveyQuestion),
+  };
+}
+
+function normalizeSurveyQuestion(question, index) {
+  const type = question.type === "choice" ? "choice" : "text";
+  return {
+    id: question.id || `survey-${index + 1}`,
+    type,
+    question: question.question || question.label || "",
+    options: type === "choice" ? question.options || [] : [],
+    required: Boolean(question.required),
+  };
+}
+
 function renderSurvey() {
   const form = $("#survey-form");
-  const questions = mission.surveyQuestions?.length
-    ? mission.surveyQuestions
-    : [
-        { id: "favoriteAnimal", label: "가장 재미있었던 동물", type: "text", required: true },
-        { id: "rating", label: "만족도", type: "rating", required: true },
-        { id: "comment", label: "자유 의견", type: "textarea", required: false },
-      ];
+  const questions = getSurveyQuestions();
 
   form.innerHTML = "";
+  const notice = document.createElement("p");
+  notice.className = "survey-error";
+  notice.id = "survey-error";
+  notice.setAttribute("role", "alert");
+  form.append(notice);
   questions.forEach((question) => form.append(createSurveyField(question)));
 
   const button = document.createElement("button");
@@ -509,19 +530,23 @@ function renderSurvey() {
 }
 
 function isSurveyEnabled() {
-  return mission.settings?.surveyEnabled === true;
+  return mission.survey?.enabled === true;
+}
+
+function externalSurveyUrl() {
+  return String(mission.survey?.externalUrl || "").trim();
 }
 
 function createSurveyField(question) {
-  if (question.type === "rating") {
+  if (question.type === "choice") {
     const fieldset = document.createElement("fieldset");
-    fieldset.className = "star-rating";
-    fieldset.innerHTML = `<legend>${escapeHtml(question.label)}</legend>`;
+    fieldset.className = "survey-choice-group";
+    fieldset.innerHTML = `<legend>${escapeHtml(surveyQuestionText(question))}</legend>`;
     const options = document.createElement("div");
-    options.className = "rating-options";
-    ["5", "4", "3", "2", "1"].forEach((value) => {
+    options.className = "survey-choice-options";
+    (question.options || []).forEach((value) => {
       const label = document.createElement("label");
-      label.innerHTML = `<input type="radio" name="${escapeAttribute(question.id)}" value="${value}" ${question.required ? "required" : ""} /><span>${"★".repeat(Number(value))}${"☆".repeat(5 - Number(value))}</span>`;
+      label.innerHTML = `<input type="radio" name="${escapeAttribute(question.id)}" value="${escapeAttribute(value)}" ${question.required ? "required" : ""} /><span>${escapeHtml(value)}</span>`;
       options.append(label);
     });
     fieldset.append(options);
@@ -529,25 +554,58 @@ function createSurveyField(question) {
   }
 
   const label = document.createElement("label");
-  label.textContent = question.label;
-  const control = document.createElement(question.type === "textarea" ? "textarea" : "input");
+  label.textContent = surveyQuestionText(question);
+  const control = document.createElement("textarea");
   control.name = question.id;
   control.required = Boolean(question.required);
   control.placeholder = question.placeholder || "";
-  if (question.type !== "textarea") control.type = question.type || "text";
-  if (question.type === "textarea") control.rows = 4;
+  control.rows = 4;
   label.append(control);
   return label;
 }
 
+function defaultSurveyQuestions() {
+  return [
+    { id: "gender", question: "성별이 어떻게 되시나요?", type: "choice", options: ["여성", "남성"], required: true },
+    { id: "age", question: "연령대가 어떻게 되시나요?", type: "choice", options: ["10대", "20대", "30대", "40대 이상"], required: true },
+    { id: "residence", question: "현재 거주지가 어떻게 되십니까?", type: "choice", options: ["서울·경기", "충주", "대전·세종", "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도"], required: true },
+    { id: "visitCount", question: "저희 체험관에는 몇 번 방문하셨나요?", type: "choice", options: ["첫 방문", "2회 이상", "5회 이상"], required: true },
+    { id: "eventSatisfaction", question: "행사에 만족하셨습니까?", type: "choice", options: ["매우 만족", "만족", "보통", "불만족", "매우 불만족"], required: true },
+    { id: "revisitIntent", question: "본 행사를 통해 체험관을 다시 찾고 싶은 마음이 드셨나요?", type: "choice", options: ["매우 그렇다", "그렇다", "보통이다", "아니다", "매우 아니다"], required: true },
+    { id: "comment", question: "참여하신 행사나 체험관에 하고 싶은 말씀을 적어주세요.", type: "text", options: [], required: false },
+  ];
+}
+
+function getSurveyQuestions() {
+  return mission.survey?.questions?.length ? mission.survey.questions : defaultSurveyQuestions();
+}
+
+function surveyQuestionText(question) {
+  return question.question || question.label || "";
+}
+
 function submitSurvey(event) {
   event.preventDefault();
+  const error = $("#survey-error");
+  if (!validateSurveyRequired()) {
+    if (error) error.textContent = "필수 문항에 응답해주세요.";
+    return;
+  }
+  if (error) error.textContent = "";
   const formData = new FormData(event.currentTarget);
   state.survey = Object.fromEntries(formData.entries());
   saveState();
   saveSurveyResult(state.survey);
   renderComplete();
   showScreen("complete");
+}
+
+function validateSurveyRequired() {
+  return getSurveyQuestions().every((question) => {
+    if (!question.required) return true;
+    const value = new FormData($("#survey-form")).get(question.id);
+    return String(value || "").trim().length > 0;
+  });
 }
 
 function saveSurveyResult(answers) {
@@ -571,6 +629,19 @@ function renderComplete() {
   $("#final-message").textContent = qualified
     ? "축하합니다! 6문제 중 3문제 이상 정답을 맞히셨습니다. 안내데스크에서 확인 후 상품 추첨에 도전하세요."
     : "아쉽지만 상품 추첨 참여 기준인 3문제 이상 정답에 도달하지 못했습니다. 다음에도 도전해 주세요!";
+  updateExternalSurveyButton();
+}
+
+function updateExternalSurveyButton() {
+  const surveyButton = $("#external-survey-button");
+  const surveyUrl = externalSurveyUrl();
+  surveyButton.classList.toggle("is-hidden", !(isSurveyEnabled() && surveyUrl));
+}
+
+function openExternalSurvey() {
+  const surveyUrl = externalSurveyUrl();
+  if (!isSurveyEnabled() || !surveyUrl) return;
+  window.location.href = surveyUrl;
 }
 
 function getNextUncompletedQuestion() {

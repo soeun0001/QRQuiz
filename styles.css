@@ -47,6 +47,10 @@ button {
   cursor: pointer;
 }
 
+.is-hidden {
+  display: none !important;
+}
+
 .app-shell {
   width: min(100%, 540px);
   min-height: 100vh;
@@ -649,20 +653,64 @@ p {
   padding: 8px 10px;
 }
 
-.rating-options label:has(input:checked) {
+.rating-options label:has(input:checked),
+.survey-choice-options label:has(input:checked) {
   background: #fff7cf;
 }
 
-.rating-options input {
+.rating-options input,
+.survey-choice-options input {
   width: 22px;
   height: 22px;
   accent-color: var(--sun);
 }
 
-.rating-options span {
+.rating-options span,
+.survey-choice-options span {
   color: #f0b500;
   font-size: 1.25rem;
   font-weight: 1000;
+}
+
+.survey-choice-group {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+.survey-choice-group legend {
+  margin-bottom: 4px;
+  color: var(--ink);
+  font-weight: 1000;
+}
+
+.survey-choice-options {
+  display: grid;
+  gap: 8px;
+}
+
+.survey-choice-options label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid var(--line);
+  border-radius: 16px;
+  background: white;
+  padding: 12px;
+}
+
+.survey-choice-options span {
+  color: var(--ink);
+  font-size: 0.98rem;
+}
+
+.survey-error {
+  min-height: 1.3em;
+  margin: 0;
+  color: var(--bad);
+  font-weight: 900;
 }
 
 .complete-screen {
@@ -718,6 +766,10 @@ p {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin: 22px 0;
+}
+
+.survey-link-button {
+  margin-top: 8px;
 }
 
 .scanner-screen {

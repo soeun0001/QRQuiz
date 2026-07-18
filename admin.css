@@ -262,9 +262,98 @@ textarea {
 
 .survey-editor {
   display: grid;
-  grid-template-columns: 1fr 0.55fr 0.45fr auto;
+  grid-template-columns: 1fr 0.45fr 0.38fr;
   gap: 10px;
   align-items: end;
+}
+
+.survey-options-editor {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 8px;
+  border: 2px dashed var(--line);
+  border-radius: 18px;
+  background: #fbfff8;
+  padding: 12px;
+}
+
+.survey-options-editor.is-hidden {
+  display: none;
+}
+
+.survey-move-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.survey-results {
+  display: grid;
+  gap: 14px;
+}
+
+.survey-result-card {
+  border: 2px solid var(--line);
+  border-radius: 22px;
+  background: white;
+  padding: 16px;
+}
+
+.survey-result-card h3 {
+  margin: 0 0 14px;
+  font-size: 1.05rem;
+}
+
+.choice-summary {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+
+.pie-chart {
+  width: 140px;
+  aspect-ratio: 1;
+  border: 8px solid #fff;
+  border-radius: 50%;
+  box-shadow: var(--shadow);
+}
+
+.choice-summary-list,
+.text-answer-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.choice-summary-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+}
+
+.choice-summary-row strong {
+  color: var(--ink);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.text-answer-list {
+  list-style: none;
+}
+
+.text-answer-list li {
+  border-radius: 14px;
+  background: #f6fbf5;
+  padding: 12px;
+  color: var(--ink);
 }
 
 .media-admin-box {
@@ -325,12 +414,51 @@ textarea {
 
   .split-layout,
   .survey-editor,
-  .qr-item {
+  .qr-item,
+  .choice-summary,
+  .survey-move-actions {
     grid-template-columns: 1fr;
+  }
+
+  .pie-chart {
+    margin: 0 auto;
   }
 
   .admin-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .login-panel,
+  .admin-header,
+  .tabs,
+  #tab-questions,
+  #tab-survey,
+  #tab-qr,
+  .button-row {
+    display: none !important;
+  }
+
+  #admin-app,
+  #tab-results,
+  .tab-panel.is-active {
+    display: block !important;
+  }
+
+  .admin-shell {
+    width: 100%;
+    padding: 0;
+  }
+
+  .card,
+  .survey-result-card {
+    box-shadow: none;
+    break-inside: avoid;
   }
 }

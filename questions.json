@@ -160,35 +160,60 @@
       }
     }
   ],
-  "surveyQuestions": [
-    {
-      "id": "favoriteAnimal",
-      "label": "가장 재미있었던 동물",
-      "type": "textarea",
-      "required": true,
-      "placeholder": "예: 뱀, 수달, 개구리"
-    },
-    {
-      "id": "rating",
-      "label": "만족도",
-      "type": "rating",
-      "required": true
-    },
-    {
-      "id": "comment",
-      "label": "자유 의견",
-      "type": "textarea",
-      "required": false,
-      "placeholder": "또 하고 싶은 미션이나 기억나는 장면을 적어 주세요"
-    },
-    {
-      "id": "survey-mref6606",
-      "label": "새 설문 문항",
-      "type": "rating",
-      "required": true
-    }
-  ],
-  "settings": {
-    "surveyEnabled": false
+  "survey": {
+    "enabled": false,
+    "externalUrl": "",
+    "eventName": "행사 만족도 조사",
+    "questions": [
+      {
+        "id": "gender",
+        "type": "choice",
+        "question": "성별이 어떻게 되시나요?",
+        "options": ["여성", "남성"],
+        "required": true
+      },
+      {
+        "id": "age",
+        "type": "choice",
+        "question": "연령대가 어떻게 되시나요?",
+        "options": ["10대", "20대", "30대", "40대 이상"],
+        "required": true
+      },
+      {
+        "id": "residence",
+        "type": "choice",
+        "question": "현재 거주지가 어떻게 되십니까?",
+        "options": ["서울·경기", "충주", "대전·세종", "충청북도", "충청남도", "전라북도", "전라남도", "경상북도", "경상남도"],
+        "required": true
+      },
+      {
+        "id": "visitCount",
+        "type": "choice",
+        "question": "저희 체험관에는 몇 번 방문하셨나요?",
+        "options": ["첫 방문", "2회 이상", "5회 이상"],
+        "required": true
+      },
+      {
+        "id": "eventSatisfaction",
+        "type": "choice",
+        "question": "행사에 만족하셨습니까?",
+        "options": ["매우 만족", "만족", "보통", "불만족", "매우 불만족"],
+        "required": true
+      },
+      {
+        "id": "revisitIntent",
+        "type": "choice",
+        "question": "본 행사를 통해 체험관을 다시 찾고 싶은 마음이 드셨나요?",
+        "options": ["매우 그렇다", "그렇다", "보통이다", "아니다", "매우 아니다"],
+        "required": true
+      },
+      {
+        "id": "comment",
+        "type": "text",
+        "question": "참여하신 행사나 체험관에 하고 싶은 말씀을 적어주세요.",
+        "options": [],
+        "required": false
+      }
+    ]
   }
 }

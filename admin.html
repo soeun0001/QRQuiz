@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>퀴즈를 풀어라 관리자</title>
-    <link rel="stylesheet" href="./admin.css?v=2" />
+    <link rel="stylesheet" href="./admin.css?v=4" />
   </head>
   <body>
     <main class="admin-shell">
@@ -48,6 +48,7 @@
               <span>설문조사 사용</span>
               <input id="survey-enabled-input" type="checkbox" />
             </label>
+            <label>Google Forms 주소 <input id="survey-external-url-input" type="url" placeholder="https://forms.gle/..." /></label>
             <p class="help-text">켜면 마지막 문제 후 설문조사를 표시하고, 끄면 바로 결과 화면으로 이동합니다.</p>
             <div class="button-row">
               <button class="primary-button" id="save-draft-button" type="button">변경사항 저장</button>
@@ -105,6 +106,7 @@
               <h2>설문 문항</h2>
               <button class="primary-button small" id="add-survey-button" type="button">문항 추가</button>
             </div>
+            <label>설문 이름 <input id="survey-event-name-input" type="text" placeholder="행사 만족도 조사" /></label>
             <div class="item-list" id="survey-list"></div>
           </div>
         </section>
@@ -121,18 +123,21 @@
         <section class="tab-panel" id="tab-results">
           <div class="card stack">
             <h2>설문 결과</h2>
-            <p class="help-text">이 브라우저에 저장된 설문 응답을 CSV로 다운로드합니다.</p>
+            <p class="help-text">이 브라우저에 저장된 설문 응답을 집계합니다. 객관식은 원형 그래프와 응답수/비율로 표시하고, 주관식은 의견 목록으로 표시합니다.</p>
             <div class="button-row">
               <button class="primary-button" id="download-csv-button" type="button">CSV 다운로드</button>
+              <button class="secondary-button" id="print-results-button" type="button">인쇄</button>
+              <button class="secondary-button" id="save-pdf-button" type="button">PDF 저장</button>
               <button class="danger-button" id="clear-results-button" type="button">결과 초기화</button>
             </div>
             <div class="result-count" id="result-count">0건</div>
+            <div class="survey-results" id="survey-results"></div>
           </div>
         </section>
       </section>
     </main>
 
     <script src="./qrcode.min.js?v=1"></script>
-    <script src="./admin.js?v=7"></script>
+    <script src="./admin.js?v=12"></script>
   </body>
 </html>
