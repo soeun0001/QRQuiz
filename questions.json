@@ -162,7 +162,7 @@
   ],
   "settings": {},
   "survey": {
-    "enabled": true,
+    "enabled": false,
     "externalUrl": "https://forms.gle/rjBjUrxa4zzcS3VW9",
     "eventName": "행사 만족도 조사",
     "questions": [
