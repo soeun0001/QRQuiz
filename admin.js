@@ -8,7 +8,14 @@ let mission = {
   title: "퀴즈를 풀어라",
   description: "",
   finalHint: "",
-  settings: {},
+  settings: {
+    operatingHours: {
+      operationStart: "",
+      operationEnd: "",
+      lunchStart: "",
+      lunchEnd: "",
+    },
+  },
   questions: [],
   survey: {
     enabled: false,
@@ -60,6 +67,17 @@ function bindAdminEvents() {
     normalizeSurveyConfig(mission);
     mission.survey.externalUrl = $("#survey-external-url-input").value.trim();
     saveDraft();
+  });
+  [
+    "operation-start-input",
+    "operation-end-input",
+    "lunch-start-input",
+    "lunch-end-input",
+  ].forEach((id) => {
+    $(`#${id}`).addEventListener("input", () => {
+      syncOperatingHoursFromInputs();
+      saveDraft();
+    });
   });
   $("#base-url-input").addEventListener("input", () => {
     localStorage.setItem(
@@ -141,6 +159,8 @@ function renderAll() {
   $("#mission-title-input").value = mission.title || "";
   $("#mission-description-input").value = mission.description || "";
   $("#mission-final-hint-input").value = mission.finalHint || "";
+  normalizeOperatingHours(mission);
+  renderOperatingHoursInputs();
   normalizeSurveyConfig(mission);
   $("#survey-enabled-input").checked = mission.survey.enabled;
   $("#survey-external-url-input").value = mission.survey.externalUrl || "";
@@ -173,6 +193,7 @@ function syncMissionMeta() {
   mission.title = $("#mission-title-input").value.trim() || "퀴즈를 풀어라";
   mission.description = $("#mission-description-input").value.trim();
   mission.finalHint = $("#mission-final-hint-input").value.trim();
+  syncOperatingHoursFromInputs();
   setSurveyEnabled($("#survey-enabled-input").checked);
   mission.survey.externalUrl = $("#survey-external-url-input").value.trim();
 }
@@ -181,6 +202,41 @@ function setSurveyEnabled(value) {
   mission.survey = mission.survey || { eventName: "행사 만족도 조사", questions: [] };
   mission.survey.externalUrl = mission.survey.externalUrl || "";
   mission.survey.enabled = value === true;
+}
+
+function normalizeOperatingHours(source) {
+  source.settings = source.settings || {};
+  const hours = source.settings.operatingHours || {};
+  source.settings.operatingHours = {
+    operationStart: normalizeTimeValue(hours.operationStart),
+    operationEnd: normalizeTimeValue(hours.operationEnd),
+    lunchStart: normalizeTimeValue(hours.lunchStart),
+    lunchEnd: normalizeTimeValue(hours.lunchEnd),
+  };
+  return source.settings.operatingHours;
+}
+
+function renderOperatingHoursInputs() {
+  const hours = normalizeOperatingHours(mission);
+  $("#operation-start-input").value = hours.operationStart;
+  $("#operation-end-input").value = hours.operationEnd;
+  $("#lunch-start-input").value = hours.lunchStart;
+  $("#lunch-end-input").value = hours.lunchEnd;
+}
+
+function syncOperatingHoursFromInputs() {
+  mission.settings = mission.settings || {};
+  mission.settings.operatingHours = {
+    operationStart: normalizeTimeValue($("#operation-start-input").value),
+    operationEnd: normalizeTimeValue($("#operation-end-input").value),
+    lunchStart: normalizeTimeValue($("#lunch-start-input").value),
+    lunchEnd: normalizeTimeValue($("#lunch-end-input").value),
+  };
+}
+
+function normalizeTimeValue(value) {
+  const text = String(value || "").trim();
+  return /^\d{2}:\d{2}$/.test(text) ? text : "";
 }
 
 function showAdminStatus(message, isError = false) {
@@ -232,6 +288,7 @@ function saveDraftToLocalStorage() {
 
 function createLocalStorageDraft(source) {
   normalizeSurveyConfig(source);
+  normalizeOperatingHours(source);
   return {
     ...source,
     settings: cleanSettings(source.settings),

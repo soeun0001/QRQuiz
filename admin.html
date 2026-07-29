@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>퀴즈를 풀어라 관리자</title>
-    <link rel="stylesheet" href="./admin.css?v=4" />
+    <link rel="stylesheet" href="./admin.css?v=5" />
   </head>
   <body>
     <main class="admin-shell">
@@ -44,6 +44,12 @@
             <label>프로젝트 이름 <input id="mission-title-input" type="text" /></label>
             <label>시작 안내문 <textarea id="mission-description-input" rows="3"></textarea></label>
             <label>마지막 힌트 <textarea id="mission-final-hint-input" rows="3"></textarea></label>
+            <div class="time-settings-grid">
+              <label>운영 시작 시간 <input id="operation-start-input" type="time" /></label>
+              <label>운영 종료 시간 <input id="operation-end-input" type="time" /></label>
+              <label>점심 시작 시간 <input id="lunch-start-input" type="time" /></label>
+              <label>점심 종료 시간 <input id="lunch-end-input" type="time" /></label>
+            </div>
             <label class="switch-row">
               <span>설문조사 사용</span>
               <input id="survey-enabled-input" type="checkbox" />
@@ -138,6 +144,6 @@
     </main>
 
     <script src="./qrcode.min.js?v=1"></script>
-    <script src="./admin.js?v=12"></script>
+    <script src="./admin.js?v=13"></script>
   </body>
 </html>

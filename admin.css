@@ -172,6 +172,12 @@ p,
   gap: 14px;
 }
 
+.time-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .section-title,
 .button-row {
   display: flex;
@@ -413,6 +419,7 @@ textarea {
   }
 
   .split-layout,
+  .time-settings-grid,
   .survey-editor,
   .qr-item,
   .choice-summary,

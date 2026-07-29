@@ -46,6 +46,7 @@ async function init() {
   try {
     mission = await loadMission();
     normalizeQuestionLocations();
+    normalizeOperatingHours();
     normalizeSurveyConfig();
     $("#mission-title").textContent = mission.title || "퀴즈를 풀어라";
     state = { ...state, ...loadState() };
@@ -108,6 +109,13 @@ function showNotice() {
 }
 
 function openQuestionWithOrderCheck(questionId, returnScreen = "home", updateUrl = true) {
+  const operation = validateOperatingHours();
+  if (operation.status !== "open") {
+    if (updateUrl) history.replaceState(null, "", location.pathname);
+    showOperationGuard(operation, returnScreen);
+    return;
+  }
+
   const validation = validateQuestionOrder(questionId);
 
   if (validation.status === "available") {
@@ -462,6 +470,34 @@ function showOrderGuard(validation, returnScreen) {
   showScreen("guard");
 }
 
+function showOperationGuard(operation, returnScreen) {
+  stopScanner();
+  returnScreenAfterGuard = returnScreen;
+
+  $("#guard-icon").textContent = "⏰";
+  $("#guard-current-wrap").style.display = "none";
+
+  if (operation.status === "before") {
+    $("#guard-title").textContent = "아직 퀴즈가 시작되지 않았습니다.";
+    $("#guard-message").textContent = "";
+    $("#guard-extra").textContent = operation.start
+      ? `${operation.start} 이후 다시 참여해 주세요.`
+      : "운영 시작 후 다시 참여해 주세요.";
+  } else if (operation.status === "lunch") {
+    $("#guard-title").textContent = "현재는 점심시간으로 퀴즈를 운영하지 않습니다.";
+    $("#guard-message").textContent = operation.end
+      ? `${operation.end} 이후 다시 참여해 주세요.`
+      : "점심시간 종료 후 다시 참여해 주세요.";
+    $("#guard-extra").textContent = "";
+  } else {
+    $("#guard-title").textContent = "오늘 퀴즈 운영이 종료되었습니다.";
+    $("#guard-message").textContent = "";
+    $("#guard-extra").textContent = "";
+  }
+
+  showScreen("guard");
+}
+
 function returnFromGuard() {
   if (returnScreenAfterGuard === "scanner") {
     startScanner();
@@ -483,6 +519,64 @@ function normalizeQuestionLocations() {
       question.location = DEFAULT_LOCATIONS[index];
     }
   });
+}
+
+function normalizeOperatingHours() {
+  mission.settings = mission.settings || {};
+  const hours = mission.settings.operatingHours || {};
+  mission.settings.operatingHours = {
+    operationStart: normalizeTimeValue(hours.operationStart),
+    operationEnd: normalizeTimeValue(hours.operationEnd),
+    lunchStart: normalizeTimeValue(hours.lunchStart),
+    lunchEnd: normalizeTimeValue(hours.lunchEnd),
+  };
+}
+
+function validateOperatingHours(now = new Date()) {
+  const hours = mission.settings?.operatingHours || {};
+  const operationStart = toMinutes(hours.operationStart);
+  const operationEnd = toMinutes(hours.operationEnd);
+  const lunchStart = toMinutes(hours.lunchStart);
+  const lunchEnd = toMinutes(hours.lunchEnd);
+  const current = now.getHours() * 60 + now.getMinutes();
+
+  if (operationStart !== null && operationEnd !== null && !isInTimeRange(current, operationStart, operationEnd)) {
+    return current < operationStart
+      ? { status: "before", start: hours.operationStart }
+      : { status: "after", end: hours.operationEnd };
+  }
+
+  if (operationStart !== null && operationEnd === null && current < operationStart) {
+    return { status: "before", start: hours.operationStart };
+  }
+
+  if (operationStart === null && operationEnd !== null && current >= operationEnd) {
+    return { status: "after", end: hours.operationEnd };
+  }
+
+  if (lunchStart !== null && lunchEnd !== null && isInTimeRange(current, lunchStart, lunchEnd)) {
+    return { status: "lunch", end: hours.lunchEnd };
+  }
+
+  return { status: "open" };
+}
+
+function isInTimeRange(current, start, end) {
+  if (start === end) return false;
+  if (start < end) return current >= start && current < end;
+  return current >= start || current < end;
+}
+
+function toMinutes(value) {
+  const text = normalizeTimeValue(value);
+  if (!text) return null;
+  const [hours, minutes] = text.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function normalizeTimeValue(value) {
+  const text = String(value || "").trim();
+  return /^\d{2}:\d{2}$/.test(text) ? text : "";
 }
 
 function normalizeSurveyConfig() {
