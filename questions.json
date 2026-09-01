@@ -161,8 +161,6 @@
     }
   ],
   "settings": {
-    "startHint": "1층 로비에서\n첫 번째 QR을 찾아보세요!",
-    "startHintImage": "",
     "operatingHours": {
       "operationStart": "20:00",
       "operationEnd": "17:40",
