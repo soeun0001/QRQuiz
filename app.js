@@ -14,6 +14,7 @@ const DEFAULT_LOCATIONS = [
 const screens = {
   home: document.querySelector("#home-screen"),
   notice: document.querySelector("#notice-screen"),
+  firstHint: document.querySelector("#first-hint-screen"),
   scanner: document.querySelector("#scanner-screen"),
   guard: document.querySelector("#guard-screen"),
   quiz: document.querySelector("#quiz-screen"),
@@ -45,6 +46,7 @@ async function init() {
 
   try {
     mission = await loadMission();
+    normalizeStartHintSettings();
     normalizeQuestionLocations();
     normalizeOperatingHours();
     normalizeSurveyConfig();
@@ -68,8 +70,10 @@ async function loadMission() {
 
 function bindEvents() {
   $("#start-button").addEventListener("click", showNotice);
-  $("#notice-next-button").addEventListener("click", startScanner);
+  $("#notice-next-button").addEventListener("click", showFirstHint);
   $("#notice-back-button").addEventListener("click", () => showScreen("home"));
+  $("#first-hint-next-button").addEventListener("click", startScanner);
+  $("#first-hint-back-button").addEventListener("click", () => showScreen("notice"));
   $("#resume-button").addEventListener("click", resumeMission);
   $("#check-button").addEventListener("click", checkAnswer);
   $("#next-button").addEventListener("click", goNext);
@@ -106,6 +110,34 @@ function resumeMission() {
 function showNotice() {
   stopScanner();
   showScreen("notice");
+}
+
+function showFirstHint() {
+  stopScanner();
+  renderFirstHint();
+  showScreen("firstHint");
+}
+
+function normalizeStartHintSettings() {
+  mission.settings = mission.settings || {};
+  mission.settings.startHint = String(mission.settings.startHint || "1층 로비에서\n첫 번째 QR을 찾아보세요!").trim();
+  mission.settings.startHintImage = String(mission.settings.startHintImage || "").trim();
+}
+
+function renderFirstHint() {
+  normalizeStartHintSettings();
+  const hintText = mission.settings.startHint || "1층 로비에서\n첫 번째 QR을 찾아보세요!";
+  const imagePath = mission.settings.startHintImage || "";
+  const imageWrap = $("#first-hint-image-wrap");
+  const image = $("#first-hint-image");
+
+  $("#first-hint-text").textContent = hintText;
+  imageWrap.classList.toggle("is-hidden", !imagePath);
+  if (imagePath) {
+    image.src = imagePath;
+  } else {
+    image.removeAttribute("src");
+  }
 }
 
 function openQuestionWithOrderCheck(questionId, returnScreen = "home", updateUrl = true) {
