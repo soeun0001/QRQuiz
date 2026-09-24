@@ -878,6 +878,22 @@ p {
   margin-top: 8px;
 }
 
+.first-hint-survey-notice {
+  width: 100%;
+  max-width: 34rem;
+  margin: 2px auto 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.8;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.first-hint-survey-notice strong {
+  color: var(--leaf-dark);
+  font-weight: 900;
+}
+
 .scanner-screen {
   text-align: center;
 }
