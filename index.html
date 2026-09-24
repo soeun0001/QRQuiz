@@ -47,11 +47,13 @@
 
       <section class="screen first-hint-screen" id="first-hint-screen">
         <div class="first-hint-card">
-          <p class="first-hint-kicker">⭐ 첫번쩨 QR코드 장소 힌트</p>
+          <p class="first-hint-kicker">⭐ 다음 장소 힌트</p>
           <h2 id="first-hint-text">1층 로비에서<br />첫 번째 QR을 찾아보세요!</h2>
-          <figure class="first-hint-image" id="first-hint-image-wrap">
-            <img id="first-hint-image" alt="시작 장소 힌트 이미지" />
-          </figure>
+        <figure class="first-hint-image" id="first-hint-image-wrap">
+          <img id="first-hint-image" alt="시작 장소 힌트 이미지" />
+        </figure>
+        <button class="primary-button large-button survey-link-button is-hidden" id="first-hint-survey-button" type="button">설문조사 참여하기</button>
+        <p class="guide-text is-hidden" id="first-hint-survey-notice">Google Forms 제출 후 이 탭으로 돌아와 ‘QR 찾으러 가기’를 눌러 퀴즈를 계속 진행해주세요. 설문을 완료하지 않아도 퀴즈를 진행할 수 있습니다.</p>
         </div>
         <div class="first-hint-actions">
           <button class="first-hint-back-button" id="first-hint-back-button" type="button">뒤로가기</button>
@@ -112,12 +114,6 @@
         <button class="primary-button large-button" id="next-button" type="button">다음 QR 찾기</button>
       </section>
 
-      <section class="screen" id="survey-screen">
-        <h2>마지막 설문조사</h2>
-        <p class="guide-text">오늘 미션에 대한 생각을 알려주세요.</p>
-        <form id="survey-form" class="survey-form"></form>
-      </section>
-
       <section class="screen complete-screen" id="complete-screen">
         <div class="confetti" aria-hidden="true">
           <span></span><span></span><span></span><span></span><span></span><span></span>
@@ -132,7 +128,6 @@
             <dd id="final-score">0점</dd>
           </div>
         </dl>
-        <button class="primary-button large-button survey-link-button is-hidden" id="external-survey-button" type="button">설문조사 참여하기</button>
       </section>
     </main>
 
@@ -144,6 +139,6 @@
     </template>
 
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-    <script src="./app.js?v=11"></script>
+    <script src="./app.js?v=12"></script>
   </body>
 </html>

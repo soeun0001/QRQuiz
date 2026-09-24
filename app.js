@@ -19,7 +19,6 @@ const screens = {
   guard: document.querySelector("#guard-screen"),
   quiz: document.querySelector("#quiz-screen"),
   result: document.querySelector("#result-screen"),
-  survey: document.querySelector("#survey-screen"),
   complete: document.querySelector("#complete-screen"),
 };
 
@@ -52,7 +51,6 @@ async function init() {
     normalizeSurveyConfig();
     $("#mission-title").textContent = mission.title || "퀴즈를 풀어라";
     state = { ...state, ...loadState() };
-    renderSurvey();
     openFromUrl();
     updateProgress();
   } catch {
@@ -73,15 +71,14 @@ function bindEvents() {
   $("#notice-next-button").addEventListener("click", showFirstHint);
   $("#notice-back-button").addEventListener("click", () => showScreen("home"));
   $("#first-hint-next-button").addEventListener("click", startScanner);
+  $("#first-hint-survey-button").addEventListener("click", openExternalSurvey);
   $("#first-hint-back-button").addEventListener("click", () => showScreen("notice"));
   $("#resume-button").addEventListener("click", resumeMission);
   $("#check-button").addEventListener("click", checkAnswer);
   $("#next-button").addEventListener("click", goNext);
-  $("#external-survey-button").addEventListener("click", openExternalSurvey);
   $("#reset-button").addEventListener("click", resetMission);
   $("#stop-scanner-button").addEventListener("click", stopScannerAndGoHome);
   $("#guard-confirm-button").addEventListener("click", returnFromGuard);
-  $("#survey-form").addEventListener("submit", submitSurvey);
 }
 
 function openFromUrl() {
@@ -132,6 +129,11 @@ function renderFirstHint() {
   const image = $("#first-hint-image");
 
   $("#first-hint-text").textContent = hintText;
+  const surveyButton = $("#first-hint-survey-button");
+  const surveyNotice = $("#first-hint-survey-notice");
+  const surveyAvailable = isSurveyEnabled() && Boolean(externalSurveyUrl());
+  surveyButton.classList.toggle("is-hidden", !surveyAvailable);
+  surveyNotice.classList.toggle("is-hidden", !surveyAvailable);
   imageWrap.classList.toggle("is-hidden", !imagePath);
   if (imagePath) {
     image.src = imagePath;
@@ -358,8 +360,6 @@ function goNext() {
     return;
   }
 
-  state.survey = null;
-  saveState();
   renderComplete();
   showScreen("complete");
 }
@@ -755,19 +755,12 @@ function renderComplete() {
   $("#final-message").textContent = qualified
     ? "축하합니다! 6문제 중 3문제 이상 정답을 맞히셨습니다. 안내데스크에서 확인 후 상품 추첨에 도전하세요."
     : "아쉽지만 상품 추첨 참여 기준인 3문제 이상 정답에 도달하지 못했습니다. 다음에도 도전해 주세요!";
-  updateExternalSurveyButton();
-}
-
-function updateExternalSurveyButton() {
-  const surveyButton = $("#external-survey-button");
-  const surveyUrl = externalSurveyUrl();
-  surveyButton.classList.toggle("is-hidden", !(isSurveyEnabled() && surveyUrl));
 }
 
 function openExternalSurvey() {
   const surveyUrl = externalSurveyUrl();
   if (!isSurveyEnabled() || !surveyUrl) return;
-  window.location.href = surveyUrl;
+  window.open(surveyUrl, "_blank", "noopener,noreferrer");
 }
 
 function getNextUncompletedQuestion() {
