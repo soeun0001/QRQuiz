@@ -71,7 +71,7 @@ function bindEvents() {
   $("#notice-next-button").addEventListener("click", showFirstHint);
   $("#notice-back-button").addEventListener("click", () => showScreen("home"));
   $("#first-hint-next-button").addEventListener("click", startScanner);
-  $("#first-hint-survey-button").addEventListener("click", openExternalSurvey);
+  $("#external-survey-button").addEventListener("click", openExternalSurvey);
   $("#first-hint-back-button").addEventListener("click", () => showScreen("notice"));
   $("#resume-button").addEventListener("click", resumeMission);
   $("#check-button").addEventListener("click", checkAnswer);
@@ -129,11 +129,6 @@ function renderFirstHint() {
   const image = $("#first-hint-image");
 
   $("#first-hint-text").textContent = hintText;
-  const surveyButton = $("#first-hint-survey-button");
-  const surveyNotice = $("#first-hint-survey-notice");
-  const surveyAvailable = isSurveyEnabled() && Boolean(externalSurveyUrl());
-  surveyButton.classList.toggle("is-hidden", !surveyAvailable);
-  surveyNotice.classList.toggle("is-hidden", !surveyAvailable);
   imageWrap.classList.toggle("is-hidden", !imagePath);
   if (imagePath) {
     image.src = imagePath;
@@ -755,6 +750,9 @@ function renderComplete() {
   $("#final-message").textContent = qualified
     ? "축하합니다! 6문제 중 3문제 이상 정답을 맞히셨습니다. 안내데스크에서 확인 후 상품 추첨에 도전하세요."
     : "아쉽지만 상품 추첨 참여 기준인 3문제 이상 정답에 도달하지 못했습니다. 다음에도 도전해 주세요!";
+  const surveyAvailable = isSurveyEnabled() && Boolean(externalSurveyUrl());
+  $("#external-survey-button").classList.toggle("is-hidden", !surveyAvailable);
+  $("#result-survey-notice").classList.toggle("is-hidden", !surveyAvailable);
 }
 
 function openExternalSurvey() {
