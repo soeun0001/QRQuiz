@@ -889,6 +889,35 @@ p {
   overflow-wrap: anywhere;
 }
 
+.complete-screen .survey-link-button {
+  display: block;
+  width: 100%;
+  min-height: 70px;
+  margin: 24px auto 0;
+  border: 2px solid #f0c447;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #168554 0%, #20a66a 58%, #2ab879 100%);
+  color: #fff;
+  font-size: clamp(1.15rem, 5vw, 1.35rem);
+  font-weight: 900;
+  line-height: 1.3;
+  box-shadow: 0 7px 0 rgba(19, 117, 79, 0.28), 0 0 0 4px rgba(255, 212, 90, 0.2);
+}
+
+.complete-screen .survey-link-button.is-hidden {
+  display: none !important;
+}
+
+.complete-screen .survey-link-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 4px 0 rgba(19, 117, 79, 0.28), 0 0 0 4px rgba(255, 212, 90, 0.2);
+}
+
+.complete-screen .result-survey-notice {
+  margin: 16px auto 0;
+  padding: 0 8px;
+}
+
 .scanner-screen {
   text-align: center;
 }
