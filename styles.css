@@ -889,6 +889,7 @@ p {
   overflow-wrap: anywhere;
 }
 
+.first-hint-screen .survey-link-button,
 .complete-screen .survey-link-button {
   display: block;
   width: 100%;
@@ -904,15 +905,18 @@ p {
   box-shadow: 0 7px 0 rgba(19, 117, 79, 0.28), 0 0 0 4px rgba(255, 212, 90, 0.2);
 }
 
+.first-hint-screen .survey-link-button.is-hidden,
 .complete-screen .survey-link-button.is-hidden {
   display: none !important;
 }
 
+.first-hint-screen .survey-link-button:active,
 .complete-screen .survey-link-button:active {
   transform: translateY(3px);
   box-shadow: 0 4px 0 rgba(19, 117, 79, 0.28), 0 0 0 4px rgba(255, 212, 90, 0.2);
 }
 
+.first-hint-screen .first-hint-survey-notice,
 .complete-screen .result-survey-notice {
   margin: 16px auto 0;
   padding: 0 8px;

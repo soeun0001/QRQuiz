@@ -71,6 +71,7 @@ function bindEvents() {
   $("#notice-next-button").addEventListener("click", showFirstHint);
   $("#notice-back-button").addEventListener("click", () => showScreen("home"));
   $("#first-hint-next-button").addEventListener("click", startScanner);
+  $("#first-hint-survey-button").addEventListener("click", openExternalSurvey);
   $("#external-survey-button").addEventListener("click", openExternalSurvey);
   $("#first-hint-back-button").addEventListener("click", () => showScreen("notice"));
   $("#resume-button").addEventListener("click", resumeMission);
@@ -129,6 +130,9 @@ function renderFirstHint() {
   const image = $("#first-hint-image");
 
   $("#first-hint-text").textContent = hintText;
+  const surveyAvailable = isSurveyEnabled() && Boolean(externalSurveyUrl());
+  $("#first-hint-survey-button").classList.toggle("is-hidden", !surveyAvailable);
+  $("#first-hint-survey-notice").classList.toggle("is-hidden", !surveyAvailable);
   imageWrap.classList.toggle("is-hidden", !imagePath);
   if (imagePath) {
     image.src = imagePath;
